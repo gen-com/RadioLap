@@ -34,6 +34,8 @@
 				RaceList/Data/RaceListResponseMapper.swift,
 				RaceList/Domain/Race.swift,
 				RaceList/Domain/RaceListRepository.swift,
+				RaceList/Presentation/ViewModel/RaceListState.swift,
+				RaceList/Presentation/ViewModel/RaceListViewModelProtocol.swift,
 			);
 			target = D14D0C000000000000000008 /* RadioLapTests */;
 		};
