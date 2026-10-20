@@ -34,6 +34,7 @@
 				RaceList/Data/RaceListResponseMapper.swift,
 				RaceList/Domain/Race.swift,
 				RaceList/Domain/RaceListRepository.swift,
+				RaceList/Presentation/View/RaceDateLabels.swift,
 				RaceList/Presentation/ViewModel/RaceListState.swift,
 				RaceList/Presentation/ViewModel/RaceListViewModel.swift,
 				RaceList/Presentation/ViewModel/RaceListViewModelProtocol.swift,

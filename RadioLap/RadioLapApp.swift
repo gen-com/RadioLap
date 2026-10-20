@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct RadioLapApp: App {
+    private let component = AppComponent()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RaceListView(dependency: component)
         }
     }
 }
