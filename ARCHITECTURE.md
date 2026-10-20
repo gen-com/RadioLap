@@ -2,7 +2,7 @@
 
 ## 목적과 적용 상태
 
-GroupCalendarDemo의 책임 분리와 의존성 주입 방식을 차용하되, RadioLap에 필요한 구조만 만듭니다. 이 문서는 합의한 설계 기준입니다.
+GroupCalendarDemo의 책임 분리와 의존성 주입 방식을 차용하되, RadioLap에 필요한 구조만 만듭니다. 이 문서는 합의한 설계 기준이며, 현재 Race·RaceListRepository·DemoRaceListProvider와 RaceListViewModel의 조회·취소·늦은 응답 처리를 구현했습니다. 목록 화면과 데모 의존성 조립도 구현했습니다. 실제 API Provider와 상세 기능은 구현 전입니다.
 
 기능별로 책임을 나누고, 실제 역할이 있는 계층과 타입만 추가합니다. 기존 프로젝트의 폴더나 코드를 기계적으로 복사하지 않습니다.
 
@@ -78,7 +78,7 @@ View 타입과 파일을 나누는 기준, 화면 배치를 드러내는 코드 
 
 ## 첫 화면에 적용할 구조
 
-레이스 목록 화면은 다음 구성으로 시작합니다. 아래는 구현할 책임과 의존성의 배치입니다.
+레이스 목록 화면은 다음 구성으로 시작합니다. Domain·데모 Data·ViewModel·Dependency·View를 구현했습니다. 실제 API Provider는 구현 예정입니다.
 
 ```text
 RadioLap/

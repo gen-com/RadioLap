@@ -1,5 +1,5 @@
 # 레이스 목록 Repository 계약
-[기능 문맥](Context.md)을 바탕으로 한 데이터 접근 계약입니다. Domain 모델·프로토콜·데모 Provider를 구현했습니다. 실제 API Provider와 목록 화면은 구현 전입니다.
+[기능 문맥](Context.md)을 바탕으로 한 데이터 접근 계약입니다. Domain 모델·프로토콜·데모 Provider를 구현했습니다. 데모 데이터에 연결한 목록 화면을 구현했으며, 실제 API Provider는 구현 전입니다.
 
 ## 데이터 조회
 OpenF1 Provider는 다음 두 목록을 조회하고 `meeting_key`로 연결합니다. 두 요청은 독립적이므로 병렬 조회할 수 있으며, 레이스마다 별도 요청하지 않습니다.
