@@ -10,9 +10,24 @@
 		4BEEBFB2307F38D500E0AA3A /* RadioLap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RadioLap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A14D0C000000000000000001 /* Exceptions for "RadioLap" folder in "RadioLap" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				RaceList/AGENTS.md,
+				RaceList/Docs/CompletionCriteria.md,
+				RaceList/Docs/Context.md,
+				RaceList/Docs/PresentationState.md,
+				RaceList/Docs/RepositoryContract.md,
+			);
+			target = 4BEEBFB1307F38D500E0AA3A /* RadioLap */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4BEEBFB4307F38D500E0AA3A /* RadioLap */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (A14D0C000000000000000001);
 			path = RadioLap;
 			sourceTree = "<group>";
 		};
@@ -263,7 +278,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -295,7 +310,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
