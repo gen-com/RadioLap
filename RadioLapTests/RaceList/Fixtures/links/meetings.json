@@ -1,0 +1,21 @@
+[
+  {
+    "meeting_key": 30,
+    "meeting_name": "Same GP",
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "First GP",
+    "year": 2026,
+    "is_cancelled": false,
+    "date_start": "2025-12-29T00:00:00Z"
+  },
+  {
+    "meeting_key": 20,
+    "meeting_name": "Same GP",
+    "year": 2026,
+    "is_cancelled": false
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test GP",
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 20,
+    "meeting_name": "Unused GP",
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 20,
+    "meeting_name": "Other Unused GP",
+    "year": 2026,
+    "is_cancelled": false
+  }
+]

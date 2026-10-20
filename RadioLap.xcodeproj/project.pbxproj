@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		4BEEBFB2307F38D500E0AA3A /* RadioLap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RadioLap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D14D0C000000000000000001 /* RadioLapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = RadioLapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -22,19 +23,49 @@
 			);
 			target = 4BEEBFB1307F38D500E0AA3A /* RadioLap */;
 		};
+		D14D0C00000000000000000C /* Exceptions for "RadioLap" folder in "RadioLapTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				RaceList/Data/DemoRaceListProvider.swift,
+				RaceList/Data/Fixtures/meetings.json,
+				RaceList/Data/Fixtures/sessions.json,
+				RaceList/Data/OpenF1MeetingDTO.swift,
+				RaceList/Data/OpenF1SessionDTO.swift,
+				RaceList/Data/RaceListResponseMapper.swift,
+				RaceList/Domain/Race.swift,
+				RaceList/Domain/RaceListRepository.swift,
+			);
+			target = D14D0C000000000000000008 /* RadioLapTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4BEEBFB4307F38D500E0AA3A /* RadioLap */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (A14D0C000000000000000001);
+			exceptions = (
+				D14D0C00000000000000000C /* Exceptions for "RadioLap" folder in "RadioLapTests" target */,
+				A14D0C000000000000000001 /* Exceptions for "RadioLap" folder in "RadioLap" target */,
+			);
 			path = RadioLap;
+			sourceTree = "<group>";
+		};
+		D14D0C000000000000000002 /* RadioLapTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFolders = (
+				RaceList/Fixtures,
+			);
+			path = RadioLapTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		4BEEBFAF307F38D500E0AA3A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		D14D0C000000000000000004 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
 			);
@@ -46,6 +77,7 @@
 			isa = PBXGroup;
 			children = (
 				4BEEBFB4307F38D500E0AA3A /* RadioLap */,
+				D14D0C000000000000000002 /* RadioLapTests */,
 				4BEEBFB3307F38D500E0AA3A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				4BEEBFB2307F38D500E0AA3A /* RadioLap.app */,
+				D14D0C000000000000000001 /* RadioLapTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,6 +112,24 @@
 			productReference = 4BEEBFB2307F38D500E0AA3A /* RadioLap.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D14D0C000000000000000008 /* RadioLapTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D14D0C00000000000000000B /* Build configuration list for PBXNativeTarget "RadioLapTests" */;
+			buildPhases = (
+				D14D0C000000000000000003 /* Sources */,
+				D14D0C000000000000000004 /* Frameworks */,
+				D14D0C000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				D14D0C000000000000000002 /* RadioLapTests */,
+			);
+			name = RadioLapTests;
+			productName = RadioLapTests;
+			productReference = D14D0C000000000000000001 /* RadioLapTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -87,9 +138,12 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2700;
-				LastUpgradeCheck = 2700;
+				LastUpgradeCheck = 2710;
 				TargetAttributes = {
 					4BEEBFB1307F38D500E0AA3A = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					D14D0C000000000000000008 = {
 						CreatedOnToolsVersion = 27.0;
 					};
 				};
@@ -108,6 +162,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				D14D0C000000000000000008 /* RadioLapTests */,
 				4BEEBFB1307F38D500E0AA3A /* RadioLap */,
 			);
 		};
@@ -119,10 +174,20 @@
 			files = (
 			);
 		};
+		D14D0C000000000000000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4BEEBFAE307F38D500E0AA3A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		D14D0C000000000000000003 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
 			);
@@ -189,6 +254,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -246,6 +312,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -315,6 +382,36 @@
 			};
 			name = Release;
 		};
+		D14D0C000000000000000009 /* Debug configuration for PBXNativeTarget "RadioLapTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = gencom.RadioLapTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D14D0C00000000000000000A /* Release configuration for PBXNativeTarget "RadioLapTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = gencom.RadioLapTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -331,6 +428,14 @@
 			buildConfigurations = (
 				4BEEBFBE307F38D600E0AA3A /* Debug configuration for PBXNativeTarget "RadioLap" */,
 				4BEEBFBF307F38D600E0AA3A /* Release configuration for PBXNativeTarget "RadioLap" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		D14D0C00000000000000000B /* Build configuration list for PBXNativeTarget "RadioLapTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D14D0C000000000000000009 /* Debug configuration for PBXNativeTarget "RadioLapTests" */,
+				D14D0C00000000000000000A /* Release configuration for PBXNativeTarget "RadioLapTests" */,
 			);
 			defaultConfigurationName = Release;
 		};
