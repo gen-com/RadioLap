@@ -1,5 +1,5 @@
 # 레이스 목록 Repository 계약
-[기능 문맥](Context.md)을 바탕으로 한 데이터 접근 계약입니다.
+[기능 문맥](Context.md)을 바탕으로 한 데이터 접근 계약입니다. Domain 모델·프로토콜·데모 Provider를 구현했습니다. 실제 API Provider와 목록 화면은 구현 전입니다.
 
 ## 데이터 조회
 OpenF1 Provider는 다음 두 목록을 조회하고 `meeting_key`로 연결합니다. 두 요청은 독립적이므로 병렬 조회할 수 있으며, 레이스마다 별도 요청하지 않습니다.
@@ -15,7 +15,7 @@ API 정보는 [OpenF1 문서](https://openf1.org/docs/)를 참고합니다.
 Provider가 응답 연결·조건 적용·Domain 모델 변환을 담당합니다. ViewModel은 Repository를 한 번 호출하고, 결과를 최신순으로 정렬해 화면 상태로 표현합니다.
 
 ## 계약과 모델
-[Race](../Domain/Race.swift)와 [RaceListRepository](../Domain/RaceListRepository.swift)의 계약입니다. 각 속성과 메서드의 인자·반환값·오류 조건은 소스의 문서 주석에서도 확인할 수 있습니다.
+구현된 [Race](../Domain/Race.swift)와 [RaceListRepository](../Domain/RaceListRepository.swift)의 계약입니다. 각 속성과 메서드의 인자·반환값·오류 조건은 소스의 문서 주석에서도 확인할 수 있습니다.
 ```swift
 nonisolated protocol RaceListRepository: Sendable {
     func fetchRaces(
@@ -75,6 +75,14 @@ struct Race: Identifiable, Equatable, Sendable {
 관련 검증 기준은 [완료기준의 Repository와 Provider 항목](CompletionCriteria.md#repository와-provider)을 따릅니다.
 
 ## 데모 구현
-번들 또는 직접 전달한 파일 URL에서 meetings.json·sessions.json을 읽습니다. 네트워크에 접근하지 않으며 같은 조회 조건과 반환 계약을 따릅니다.
+[DemoRaceListProvider](../Data/DemoRaceListProvider.swift)는 번들 또는 직접 전달한 파일 URL에서 meetings.json·sessions.json을 읽습니다.
+네트워크에 접근하지 않으며, 실제 API Provider와 같은 조회 조건과 반환 계약을 따릅니다.
+
+[RaceListResponseMapper](../Data/RaceListResponseMapper.swift)는 파일·네트워크와 독립적으로 JSON 해석, 대회·세션 연결, 조건 적용과 검증, Race 변환을 담당합니다.
+- 제외 대상도 필수 필드·타입·날짜를 해석할 수 있어야 하며, 디코딩 오류는 전체 조회 실패로 전달합니다.
+- 표시 대상에 필요한 연결과 값의 유효성을 검증합니다. 동일한 중복은 합치고, 표시 여부나 표시 대상의 내용이 충돌하면 오류를 전달합니다.
+- 파일 누락·읽기 실패와 데이터 처리 오류를 빈 결과로 바꾸지 않습니다.
+- 각 파일 읽기와 각 응답 디코딩이 완료된 뒤, 변환 반복 중과 최종 반환 직전에 취소를 확인합니다. 동기 읽기·디코딩 자체를 중단하지는 않습니다.
+세부 처리와 검증 기준은 위 코드와 [완료기준](CompletionCriteria.md#repository와-provider)을 참고합니다.
 
 데모에 사용하는 저장 응답은 자동 갱신되지 않는 2026 시즌 자료입니다. 조회 기준 시각이 지나면 저장된 미래 일정도 종료 조건에 포함될 수 있으므로, 실제 최신 경기 상황을 보장하지 않습니다.
