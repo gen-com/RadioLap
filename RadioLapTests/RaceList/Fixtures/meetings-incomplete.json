@@ -1,0 +1,71 @@
+[
+  {
+    "meeting_key": 10,
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "year": 2026
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": null,
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "year": null,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "year": 2026,
+    "is_cancelled": null
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": [],
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "year": "invalid",
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "year": 2026,
+    "is_cancelled": "invalid"
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "",
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": " \t\n",
+    "year": 2026,
+    "is_cancelled": false
+  }
+]

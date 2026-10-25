@@ -9,442 +9,341 @@ import Testing
 
 @MainActor
 final class RaceListViewModelTests {
-    private let repository: RaceListRepositorySpy
-    private let viewModel: any RaceListViewModelProtocol
-    private let failureState = RaceListState.failed(message: "레이스 목록을 불러오지 못했습니다. 다시 시도해주세요.")
 
-    init() {
-        let repository = RaceListRepositorySpy()
-        self.repository = repository
-        viewModel = RaceListViewModel(repository: repository, now: { Date(timeIntervalSince1970: 1000) })
-    }
+    // MARK: - 테스트: 초기 상태와 조회
 
-    isolated deinit {
-        viewModel.cancel()
-        let repository = repository
-        Task {
-            await repository.finishPendingRequests()
-        }
-    }
-
-    private func race(_ id: Int, start: TimeInterval) -> Race {
-        Race(sessionID: id, name: "Race \(id)", startsAt: Date(timeIntervalSince1970: start), location: nil)
-    }
-
-    @Test("초기에는 조회하거나 기준 시각을 읽지 않는다")
-    func initialState() async {
+    @Test("초기 상태는 idle이며 UseCase와 시계를 호출하지 않는다")
+    func startsIdleWithoutRequest() async throws {
         // Arrange
-        var clockCalls = 0
-        let viewModel: any RaceListViewModelProtocol = RaceListViewModel(repository: repository, now: {
-            clockCalls += 1
+        var clockReads = 0
+        try await withPresentation(now: {
+            clockReads += 1
             return Date(timeIntervalSince1970: 1000)
-        })
-        defer { viewModel.cancel() }
-
-        // Act: 초기 상태를 읽는다.
-
-        // Assert
-        #expect(viewModel.state == .idle)
-        #expect(await repository.requestCount == 0)
-        #expect(clockCalls == 0)
+        }) { presentation, useCase in
+            // Act / Assert
+            #expect(presentation.state == .idle)
+            #expect(await useCase.requests.isEmpty)
+            #expect(clockReads == 0)
+        }
     }
 
-    @Test("load의 loading 전환을 관찰할 수 있다")
-    func stateChangesAreObservable() async {
+    @Test("load는 관찰 가능한 loading으로 즉시 전환하고 시즌과 기준 시각을 전달한다")
+    func startsLoading() async throws {
         // Arrange
-        await confirmation("상태 변경 알림") { changed in
-            withObservationTracking {
-                _ = viewModel.state
-            } onChange: {
-                changed()
+        let now = Date(timeIntervalSince1970: 1000)
+        var clockReads = 0
+        try await withPresentation(now: {
+            clockReads += 1
+            return now
+        }) { presentation, useCase in
+            await confirmation("loading 변경 알림") { changed in
+                withObservationTracking {
+                    _ = presentation.state
+                } onChange: { changed() }
+
+                // Act
+                presentation.load()
+
+                // Assert
+                #expect(presentation.state == .loading)
             }
+            let request = try await useCase.request(at: 0)
+            #expect(request.year == 2026)
+            #expect(request.endedBefore == now)
+            #expect(clockReads == 1)
+        }
+    }
+
+    // MARK: - 테스트: 결과 반영
+
+    @Test("UseCase가 반환한 값과 순서를 그대로 content에 반영하고 변경을 알린다")
+    func preservesContentOrder() async throws {
+        // Arrange: ViewModel이 다시 정렬하는 오류를 잡기 위해 공급 순서를 최신순과 다르게 둔다.
+        let races = [Race(sessionID: 20, name: "Earlier GP", startsAt: Date(timeIntervalSince1970: 100), location: nil),
+                     Race(sessionID: 10, name: "Later GP", startsAt: Date(timeIntervalSince1970: 200), location: "Circuit")]
+        try await withPresentation { presentation, useCase in
+            presentation.load()
+            let request = try await useCase.request(at: 0)
+            try await confirmation("content 변경 알림") { changed in
+                withObservationTracking {
+                    _ = presentation.state
+                } onChange: { changed() }
+
+                // Act
+                try await useCase.complete(request, with: .success(races))
+
+                // Assert
+                try await waitForState(.content(races), in: presentation)
+            }
+        }
+    }
+
+    @Test("빈 결과는 content가 아닌 empty로 반영한다")
+    func showsEmptyResult() async throws {
+        try await withPresentation { presentation, useCase in
+            // Arrange
+            presentation.load()
+            let request = try await useCase.request(at: 0)
 
             // Act
-            viewModel.load()
+            try await useCase.complete(request, with: .success([]))
 
             // Assert
-            #expect(viewModel.state == .loading)
+            try await waitForState(.empty, in: presentation)
         }
     }
 
-    @Test("조회 결과에 맞는 상태와 안내 메시지로 전환하며 변경을 관찰할 수 있다",
-          arguments: [Response.content, .empty, .failure, .cancellation])
-    func observesResultState(outcome: Response) async throws {
-        // Arrange
-        viewModel.load()
-        let request = try await repository.nextRequest()
-        let result = response(outcome)
-        let expected = expectedState(outcome)
-        try await confirmation("조회 결과의 상태 변경 알림") { changed in
-            withObservationTracking {
-                _ = viewModel.state
-            } onChange: {
-                changed()
-            }
+    @Test("일반 오류는 다시 시도 안내가 있는 failed로 반영한다")
+    func showsFailure() async throws {
+        try await withPresentation { presentation, useCase in
+            // Arrange
+            presentation.load()
+            let request = try await useCase.request(at: 0)
 
             // Act
-            await repository.complete(request.id, with: result)
+            try await useCase.complete(request, with: .failure(URLError(.notConnectedToInternet)))
 
             // Assert
-            try await waitForState(expected, in: viewModel)
+            try await waitForState(.failed(message: "레이스 목록을 불러오지 못했습니다. 다시 시도해주세요."), in: presentation)
         }
     }
 
-    @Test("load는 즉시 loading으로 전환하고 기준 시각을 한 번 읽어 조회 인자를 전달한다")
-    func startsLoadingWithExpectedArguments() async throws {
-        // Arrange
-        let before = Date(timeIntervalSince1970: 1000)
-        var clockCalls = 0
-        let viewModel: any RaceListViewModelProtocol = RaceListViewModel(repository: repository, now: {
-            clockCalls += 1
-            return before
-        })
-        defer { viewModel.cancel() }
+    @Test("UseCase의 CancellationError는 실패 안내 없이 idle로 반영한다")
+    func showsCancellation() async throws {
+        try await withPresentation { presentation, useCase in
+            // Arrange
+            presentation.load()
+            let request = try await useCase.request(at: 0)
 
-        // Act
-        viewModel.load()
+            // Act
+            try await useCase.complete(request, with: .failure(CancellationError()))
 
-        // Assert
-        #expect(viewModel.state == .loading)
-        #expect(clockCalls == 1)
-        let request = try await repository.nextRequest()
-        #expect(request.year == 2026)
-        #expect(request.endedBefore == before)
+            // Assert
+            try await waitForState(.idle, in: presentation)
+        }
     }
 
-    @Test("시작 시각 내림차순과 동률 식별자 오름차순으로 정렬하고 반환 필드를 보존한다")
-    func sortsContentPreservingValues() async throws {
+    @Test("실패 후 재시도는 새 기준 시각으로 조회하고 성공 결과를 반영한다")
+    func retriesAfterFailure() async throws {
         // Arrange
-        let old = race(3, start: 100)
-        let second = race(2, start: 200)
-        let first = Race(sessionID: 1, name: "First", startsAt: Date(timeIntervalSince1970: 200), location: "Circuit")
-
-        viewModel.load()
-        let request = try await repository.nextRequest()
-
-        // Act
-        await repository.complete(request.id, with: .success([second, old, first]))
-
-        // Assert
-        try await waitForState(.content([first, second, old]), in: viewModel)
-    }
-
-    @Test("content·empty·failed 모두 load로 새 기준 시각의 조회를 시작한다", arguments: [Response.content, .failure, .empty], [false, true])
-    func reloadAfterCompletion(outcome: Response, empty: Bool) async throws {
-        // Arrange
-        var clockCalls = 0
         var now = Date(timeIntervalSince1970: 1000)
-        let viewModel: any RaceListViewModelProtocol = RaceListViewModel(repository: repository, now: {
-            clockCalls += 1
+        var clockReads = 0
+        try await withPresentation(now: {
+            clockReads += 1
             return now
-        })
-        defer { viewModel.cancel() }
-        viewModel.load()
-        let first = try await repository.nextRequest()
-        let firstResult: Result<[Race], RaceListRepositorySpy.Failure> = response(outcome)
-        await repository.complete(first.id, with: firstResult)
-        let expected: RaceListState = expectedState(outcome)
-        try await waitForState(expected, in: viewModel)
+        }) { presentation, useCase in
+            presentation.load()
+            let first = try await useCase.request(at: 0)
+            try await useCase.complete(first, with: .failure(URLError(.timedOut)))
+            try await waitForState(.failed(message: "레이스 목록을 불러오지 못했습니다. 다시 시도해주세요."), in: presentation)
 
-        // Act
-        now = Date(timeIntervalSince1970: 2000)
-        viewModel.load()
+            // Act
+            now = Date(timeIntervalSince1970: 2000)
+            presentation.load()
 
-        // Assert
-        #expect(viewModel.state == .loading)
-        let second = try await repository.nextRequest()
-        #expect(first.endedBefore == Date(timeIntervalSince1970: 1000))
-        #expect(second.endedBefore == Date(timeIntervalSince1970: 2000))
-        #expect(second.year == 2026)
-        // Act: 재조회 응답을 전달한다.
-        let result = empty ? [] : [race(9, start: 500)]
-        await repository.complete(second.id, with: .success(result))
-
-        // Assert
-        try await waitForState(empty ? .empty : .content(result), in: viewModel)
-        #expect(clockCalls == 2)
-    }
-
-    @Test("cancel은 즉시 idle로 전환하며, 취소를 무시한 응답 이후에도 재조회할 수 있다", arguments: [Response.content, .failure, .cancellation])
-    func explicitCancellation(outcome: Response) async throws {
-        // Arrange: 공통 대상은 init에서 준비한다.
-
-        viewModel.load()
-        let request = try await repository.nextRequest()
-
-        // Act
-        viewModel.cancel()
-
-        // Assert
-        #expect(viewModel.state == .idle)
-        try await repository.waitForCancellation(request.id)
-        // Act / Assert: 취소를 무시한 응답도 상태를 변경하지 않는다.
-        try await expectStateRemains(.idle, in: viewModel) {
-            await repository.complete(request.id, with: response(outcome))
-        }
-
-        // Act: 취소 이후 재조회한다.
-        viewModel.load()
-        let next = try await repository.nextRequest()
-        await repository.complete(next.id, with: .success([]))
-
-        // Assert
-        try await waitForState(.empty, in: viewModel)
-    }
-
-    @Test("별도 cancel 없이 B를 호출하면 A가 취소되고, A의 응답 3종은 B의 진행·완료 상태를 덮지 않는다", arguments: [Response.content, .failure, .cancellation], [CurrentState.loading, .content, .empty, .failed, .idle])
-    func ignoresOldResponse(outcome: Response, newState: CurrentState) async throws {
-        // Arrange: 공통 대상은 init에서 준비한다.
-        viewModel.load()
-        let old = try await repository.nextRequest()
-        viewModel.load()
-        let new = try await repository.nextRequest()
-        try await repository.waitForCancellation(old.id)
-        let newRaces = [race(99, start: 500)]
-        let expected: RaceListState
-        switch newState {
-        case .content:
-            await repository.complete(new.id, with: .success(newRaces))
-            expected = .content(newRaces)
-        case .empty:
-            await repository.complete(new.id, with: .success([]))
-            expected = .empty
-        case .failed:
-            await repository.complete(new.id, with: .failure(.unavailable))
-            expected = failureState
-        case .idle:
-            await repository.complete(new.id, with: .failure(.cancelled))
-            expected = .idle
-        case .loading:
-            expected = .loading
-        }
-        try await waitForState(expected, in: viewModel)
-        // Act / Assert: 응답 전달 전부터 공개 상태 변경을 관찰한다.
-        try await expectStateRemains(expected, in: viewModel) {
-            await repository.complete(old.id, with: response(outcome))
-        }
-        #expect(await repository.wasCancelled(new.id) == false)
-        #expect(await repository.requestCount == 2)
-        if newState == .loading {
-            await repository.complete(new.id, with: .success(newRaces))
-            try await waitForState(.content(newRaces), in: viewModel)
+            // Assert
+            #expect(presentation.state == .loading)
+            let retry = try await useCase.request(at: 1)
+            #expect(first.endedBefore == Date(timeIntervalSince1970: 1000))
+            #expect(retry.endedBefore == now)
+            #expect(retry.year == 2026)
+            #expect(clockReads == 2)
+            try await useCase.complete(retry, with: .success(sampleRaces))
+            try await waitForState(.content(sampleRaces), in: presentation)
         }
     }
 
-    @Test("이전 요청이 늦게 끝나도 현재 요청을 취소할 수 있다",
-          arguments: [Response.content, .failure, .cancellation])
-    func oldResponsePreservesCurrentCancellation(outcome: Response) async throws {
-        // Arrange: 공통 대상은 init에서 준비한다.
+    // MARK: - 테스트: 취소와 최신 요청
 
-        viewModel.load()
-        let old = try await repository.nextRequest()
-        viewModel.load()
-        let new = try await repository.nextRequest()
+    @Test("진행 중 요청을 취소하면 즉시 idle로 바뀌고 다시 조회할 수 있다")
+    func cancelsAndLoadsAgain() async throws {
+        try await withPresentation { presentation, useCase in
+            // Arrange
+            presentation.load()
+            let first = try await useCase.request(at: 0)
 
-        // Act / Assert
-        try await expectStateRemains(.loading, in: viewModel) {
-            await repository.complete(old.id, with: response(outcome))
-        }
+            // Act
+            presentation.cancel()
 
-        // Act
-        viewModel.cancel()
-
-        // Assert
-        #expect(viewModel.state == .idle)
-        try await repository.waitForCancellation(new.id)
-        try await expectStateRemains(.idle, in: viewModel) {
-            await repository.complete(new.id, with: .success([race(2, start: 200)]))
+            // Assert
+            #expect(presentation.state == .idle)
+            try await useCase.waitForCancellation(of: first)
+            // 취소된 작업의 실제 종료를 기다리지 않고 다음 조회를 시작한다.
+            presentation.load()
+            let next = try await useCase.request(at: 1)
+            try await useCase.complete(next, with: .success(sampleRaces))
+            try await waitForState(.content(sampleRaces), in: presentation)
         }
     }
 
-    @Test("세 요청의 모든 응답 순서에서 C만 결과를 반영한다", arguments: [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]])
-    func latestOfThreeRequests(order: [Int]) async throws {
-        // Arrange: 공통 대상은 init에서 준비한다.
-        var requests: [RaceListRepositorySpy.Request] = []
-        for _ in 0..<3 {
-            viewModel.load()
-            requests.append(try await repository.nextRequest())
-        }
-        try await repository.waitForCancellation(requests[0].id)
-        try await repository.waitForCancellation(requests[1].id)
+    @Test("명시적으로 취소한 요청의 늦은 성공·실패·취소는 idle을 변경하지 않는다",
+          arguments: LateResponse.allCases)
+    func ignoresCancelledResponse(response: LateResponse) async throws {
+        try await withPresentation { presentation, useCase in
+            // Arrange
+            presentation.load()
+            let request = try await useCase.request(at: 0)
+            presentation.cancel()
+            #expect(presentation.state == .idle)
 
-        // Assert
-        #expect(await repository.wasCancelled(requests[2].id) == false)
-        var latestCompleted = false
-        // Act / Assert: 지정한 순서로 응답하며 각 단계의 공개 상태를 확인한다.
-        for index in order {
-            let result = [race(index + 1, start: Double(index * 100))]
-            latestCompleted = latestCompleted || index == 2
-            let expected: RaceListState = latestCompleted ? .content([race(3, start: 200)]) : .loading
-            if index == 2 {
-                await repository.complete(requests[index].id, with: .success(result))
-                try await waitForState(expected, in: viewModel)
-            } else {
-                try await expectStateRemains(expected, in: viewModel) {
-                    await repository.complete(requests[index].id, with: .success(result))
-                }
+            // Act / Assert
+            try await expectStateRemains(.idle, in: presentation) {
+                try await useCase.complete(request, with: result(response))
             }
         }
-        #expect(await repository.requestCount == 3)
     }
 
-    @Test("중단점 없이 연속 호출해도 이전 Task가 취소되며 마지막 작업만 Repository를 호출한다")
-    func replacementBeforeTaskStarts() async throws {
-        // Arrange
-        var clockCalls = 0
-        var now = Date(timeIntervalSince1970: 1000)
-        let viewModel: any RaceListViewModelProtocol = RaceListViewModel(repository: repository, now: {
-            clockCalls += 1
-            return now
-        })
-        defer { viewModel.cancel() }
+    @Test("새 조회가 이전 요청을 취소하고 이전 응답은 최신 결과를 덮지 않는다",
+          arguments: LateResponse.allCases)
+    func keepsLatestResult(response: LateResponse) async throws {
+        try await withPresentation { presentation, useCase in
+            // Arrange
+            presentation.load()
+            let old = try await useCase.request(at: 0)
+            presentation.load()
+            let latest = try await useCase.request(at: 1)
+            try await useCase.waitForCancellation(of: old)
+            try await useCase.complete(latest, with: .success(sampleRaces))
+            try await waitForState(.content(sampleRaces), in: presentation)
 
-        // Act
-        viewModel.load()
-        now = Date(timeIntervalSince1970: 2000)
-        viewModel.load()
-        now = Date(timeIntervalSince1970: 3000)
-        viewModel.load()
-        let request = try await repository.nextRequest()
-        await repository.complete(request.id, with: .success([]))
-
-        // Assert
-        try await waitForState(.empty, in: viewModel)
-        try await expectStateRemains(.empty, in: viewModel) { await Task.yield() }
-        #expect(await repository.requestCount == 1)
-        #expect(clockCalls == 3)
-        #expect(request.endedBefore == Date(timeIntervalSince1970: 3000))
-    }
-
-    @Test("실행 전 취소는 Repository를 호출하지 않으며 기준 시각을 한 번 읽고 재조회할 수 있다")
-    func cancellationBeforeTaskStarts() async throws {
-        // Arrange
-        var clockCalls = 0
-        var now = Date(timeIntervalSince1970: 1000)
-        let viewModel: any RaceListViewModelProtocol = RaceListViewModel(repository: repository, now: {
-            clockCalls += 1
-            return now
-        })
-        defer { viewModel.cancel() }
-
-        // Act: MainActor를 양보하기 전에 취소한다.
-        viewModel.load()
-        viewModel.cancel()
-
-        // Assert
-        #expect(viewModel.state == .idle)
-        #expect(clockCalls == 1)
-        try await expectStateRemains(.idle, in: viewModel) { await Task.yield() }
-        #expect(await repository.requestCount == 0)
-
-        // Act: 취소 이후 다시 조회한다.
-        now = Date(timeIntervalSince1970: 2000)
-        viewModel.load()
-        let request = try await repository.nextRequest()
-        await repository.complete(request.id, with: .success([]))
-
-        // Assert
-        try await waitForState(.empty, in: viewModel)
-        #expect(request.endedBefore == Date(timeIntervalSince1970: 2000))
-        #expect(clockCalls == 2)
-    }
-
-    @Test("진행 중인 요청이 없으면 cancel은 idle·content·empty·failed를 유지한다", arguments: [Response.content, .failure, .empty])
-    func cancellationWithoutActiveRequest(outcome: Response) async throws {
-        // Arrange: 공통 대상은 init에서 준비한다.
-        viewModel.cancel()
-
-        // Assert
-        #expect(viewModel.state == .idle)
-        viewModel.load()
-        let request = try await repository.nextRequest()
-        let result: Result<[Race], RaceListRepositorySpy.Failure> = response(outcome)
-        await repository.complete(request.id, with: result)
-        let expected: RaceListState = expectedState(outcome)
-        try await waitForState(expected, in: viewModel)
-        let previous = viewModel.state
-
-        // Act
-        viewModel.cancel()
-
-        // Assert
-        #expect(viewModel.state == previous)
-        #expect(await repository.requestCount == 1)
-    }
-
-    @Test("호출자 취소는 내부 작업에 전파되지 않고 명시적 cancel로 중단한다", arguments: [true, false])
-    func callerCancellationDoesNotCancelLoad(cancelBeforeLoad: Bool) async throws {
-        // Arrange: 조회 시작 전·후에 호출 작업을 취소한다.
-
-        // Act
-        let caller = Task {
-            if cancelBeforeLoad { withUnsafeCurrentTask { $0?.cancel() } }
-            viewModel.load()
-            if !cancelBeforeLoad { withUnsafeCurrentTask { $0?.cancel() } }
-        }
-        await caller.value
-        let request = try await repository.nextRequest()
-
-        // Assert
-        #expect(viewModel.state == .loading)
-        viewModel.cancel()
-        try await repository.waitForCancellation(request.id)
-        try await expectStateRemains(.idle, in: viewModel) {
-            await repository.complete(request.id, with: .success([]))
+            // Act / Assert
+            try await expectStateRemains(.content(sampleRaces), in: presentation) {
+                try await useCase.complete(old, with: result(response))
+            }
         }
     }
 
-    private let stateTimeout: Duration = .seconds(3)
-    private let observationDuration: Duration = .seconds(1)
-    private let pollingInterval: Duration = .milliseconds(10)
+    @Test("이전 요청이 먼저 끝나도 최신 loading을 유지하고 현재 요청을 취소할 수 있다")
+    func preservesCurrentRequestAfterOldResponse() async throws {
+        try await withPresentation { presentation, useCase in
+            // Arrange
+            presentation.load()
+            let old = try await useCase.request(at: 0)
+            presentation.load()
+            let latest = try await useCase.request(at: 1)
 
-    /// 공개 상태를 최대 3초 기다리고, 예상 상태에 도달하면 바로 반환한다.
-    private func waitForState(_ expected: RaceListState, in viewModel: any RaceListViewModelProtocol) async throws {
-        let deadline = ContinuousClock.now.advanced(by: stateTimeout)
-        while viewModel.state != expected, ContinuousClock.now < deadline {
-            try await Task.sleep(for: pollingInterval)
+            // Act / Assert
+            try await expectStateRemains(.loading, in: presentation) {
+                try await useCase.complete(old, with: .success([]))
+            }
+            presentation.cancel()
+            #expect(presentation.state == .idle)
+            try await useCase.waitForCancellation(of: latest)
         }
-        try #require(viewModel.state == expected, "제한 시간 안에 예상 상태에 도달해야 합니다.")
     }
 
-    /// 응답을 전달하기 전 변경 추적을 등록하여 관찰 중 일시적인 상태 변경도 검출한다.
-    /// 1초 관찰은 내부 Task의 종료를 보장하지 않으며, 관찰 구간 이후의 변경은 검출하지 못한다.
-    private func expectStateRemains(
-        _ expected: RaceListState,
-        in viewModel: any RaceListViewModelProtocol,
-        after action: () async -> Void
+    @Test("완료 상태에서 cancel은 상태를 유지하고 load는 새 조회를 시작한다",
+          arguments: CompletedState.allCases)
+    func keepsCompletedState(state: CompletedState) async throws {
+        try await withPresentation { presentation, useCase in
+            // Arrange / Assert: 최초 idle에서도 cancel은 상태를 바꾸지 않는다.
+            presentation.cancel()
+            #expect(presentation.state == .idle)
+            presentation.load()
+            let request = try await useCase.request(at: 0)
+            let expected: RaceListState
+            switch state {
+            case .content:
+                try await useCase.complete(request, with: .success(sampleRaces))
+                expected = .content(sampleRaces)
+            case .empty:
+                try await useCase.complete(request, with: .success([]))
+                expected = .empty
+            case .failed:
+                try await useCase.complete(request, with: .failure(URLError(.timedOut)))
+                expected = .failed(message: "레이스 목록을 불러오지 못했습니다. 다시 시도해주세요.")
+            }
+            try await waitForState(expected, in: presentation)
+
+            // Act
+            presentation.cancel()
+
+            // Assert
+            #expect(presentation.state == expected)
+
+            // Act: 완료 상태에서도 다시 조회할 수 있다.
+            presentation.load()
+
+            // Assert
+            #expect(presentation.state == .loading)
+            let next = try await useCase.request(at: 1)
+            try await useCase.complete(next, with: .success([]))
+            try await waitForState(.empty, in: presentation)
+        }
+    }
+}
+
+// MARK: - 테스트 입력
+
+private extension RaceListViewModelTests {
+    var sampleRaces: [Race] {
+        [Race(sessionID: 99, name: "Test Grand Prix", startsAt: Date(timeIntervalSince1970: 500), location: "Circuit")]
+    }
+
+    func result(_ response: LateResponse) -> Result<[Race], any Error> {
+        switch response {
+        case .success: .success([])
+        case .failure: .failure(URLError(.timedOut))
+        case .cancellation: .failure(CancellationError())
+        }
+    }
+}
+
+// MARK: - 준비와 정리
+
+private extension RaceListViewModelTests {
+    /// 각 테스트가 독립적인 대상과 대역을 사용하며, 중간 검증 실패 시에도 미완료 요청을 해제한다.
+    func withPresentation(
+        now: @escaping () -> Date = { Date(timeIntervalSince1970: 1000) },
+        _ test: (any RaceListPresentation, RaceListUseCaseSpy) async throws -> Void
     ) async throws {
-        try #require(viewModel.state == expected)
-        try await confirmation("상태가 변경되지 않는다", expectedCount: 0) { changed in
+        let useCase = RaceListUseCaseSpy()
+        let presentation: any RaceListPresentation = RaceListViewModel(useCase: useCase, now: now)
+        do {
+            try await test(presentation, useCase)
+        } catch {
+            presentation.cancel()
+            await useCase.close()
+            throw error
+        }
+        presentation.cancel()
+        await useCase.close()
+    }
+}
+
+// MARK: - 비동기 상태 확인
+
+private extension RaceListViewModelTests {
+    func waitForState(_ expected: RaceListState, in presentation: any RaceListPresentation) async throws {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(3))
+        while presentation.state != expected, ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        try #require(presentation.state == expected, "예상 상태에 도달하지 않았습니다.")
+    }
+
+    /// 늦은 응답 전달 전 관찰을 시작해 200ms 동안 상태 변경이 없는지 확인한다.
+    /// 이 제한된 관찰 구간은 내부 작업의 종료나 이후 모든 시점의 무변경을 보장하지 않는다.
+    func expectStateRemains(
+        _ expected: RaceListState,
+        in presentation: any RaceListPresentation,
+        after action: () async throws -> Void
+    ) async throws {
+        try #require(presentation.state == expected)
+        try await confirmation("늦은 응답으로 상태가 변경되지 않는다", expectedCount: 0) { changed in
             withObservationTracking {
-                _ = viewModel.state
-            } onChange: {
-                changed()
-            }
-            await action()
-            try await Task.sleep(for: observationDuration)
-            #expect(viewModel.state == expected)
+                _ = presentation.state
+            } onChange: { changed() }
+            try await action()
+            try await Task.sleep(for: .milliseconds(200))
+            #expect(presentation.state == expected)
         }
     }
+}
 
-    private func response(_ outcome: Response) -> Result<[Race], RaceListRepositorySpy.Failure> {
-        switch outcome {
-        case .content: .success([race(1, start: 100)])
-        case .empty: .success([])
-        case .failure: .failure(.unavailable)
-        case .cancellation: .failure(.cancelled)
-        }
-    }
+// MARK: - 매개변수 사례
 
-    private func expectedState(_ outcome: Response) -> RaceListState {
-        switch outcome {
-        case .content: .content([race(1, start: 100)])
-        case .empty: .empty
-        case .failure: failureState
-        case .cancellation: .idle
-        }
-    }
-
-    enum Response: Sendable { case content, empty, failure, cancellation }
-    enum CurrentState: Sendable { case loading, content, empty, failed, idle }
+extension RaceListViewModelTests {
+    enum LateResponse: CaseIterable, Sendable { case success, failure, cancellation }
+    enum CompletedState: CaseIterable, Sendable { case content, empty, failed }
 }

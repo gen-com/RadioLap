@@ -39,7 +39,6 @@
 				RaceList/Domain/RaceListUseCase.swift,
 				RaceList/Domain/RaceMeetingCandidate.swift,
 				RaceList/Domain/RaceSessionKind.swift,
-				RaceList/Presentation/View/RaceDateLabels.swift,
 				RaceList/Presentation/ViewModel/RaceListState.swift,
 				RaceList/Presentation/ViewModel/RaceListViewModel.swift,
 				RaceList/Presentation/ViewModel/RaceListPresentation.swift,

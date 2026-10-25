@@ -1,0 +1,33 @@
+[
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Test Grand Prix",
+    "year": 2026,
+    "is_cancelled": false
+  },
+  {
+    "meeting_key": 10,
+    "meeting_name": "Other GP",
+    "year": 2025,
+    "is_cancelled": true
+  },
+  {
+    "meeting_key": 20,
+    "meeting_name": "Test Grand Prix",
+    "year": 2025,
+    "is_cancelled": false,
+    "date_start": "2025-12-30T00:00:00Z"
+  },
+  {
+    "meeting_key": 30,
+    "meeting_name": "Test Grand Prix",
+    "year": 2026,
+    "is_cancelled": true
+  }
+]
