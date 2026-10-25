@@ -1,0 +1,20 @@
+[
+  {
+    "session_key": -1,
+    "meeting_key": 20,
+    "driver_number": -7,
+    "position": 0,
+    "dnf": false,
+    "dns": false,
+    "dsq": false
+  },
+  {
+    "session_key": -1,
+    "meeting_key": 20,
+    "driver_number": 100,
+    "position": -1,
+    "dnf": false,
+    "dns": false,
+    "dsq": false
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "session_key": 1,
+    "meeting_key": 99,
+    "driver_number": 7,
+    "position": 1,
+    "dnf": false,
+    "dns": false,
+    "dsq": false,
+    "points": "ignored",
+    "number_of_laps": null,
+    "new_field": [
+      1,
+      2
+    ]
+  }
+]

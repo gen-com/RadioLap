@@ -1,0 +1,26 @@
+[
+  {
+    "session_key": 1,
+    "meeting_key": 10,
+    "driver_number": 8,
+    "full_name": "Same DRIVER",
+    "name_acronym": "ADR",
+    "team_name": "Team"
+  },
+  {
+    "session_key": 1,
+    "meeting_key": 10,
+    "driver_number": 7,
+    "full_name": "Same DRIVER",
+    "name_acronym": "ADR",
+    "team_name": "Team"
+  },
+  {
+    "session_key": 1,
+    "meeting_key": 10,
+    "driver_number": 9,
+    "full_name": "Same DRIVER",
+    "name_acronym": "ADR",
+    "team_name": "Team"
+  }
+]

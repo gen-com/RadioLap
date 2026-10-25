@@ -59,8 +59,8 @@ final class RaceListViewModelTests {
     @Test("UseCase가 반환한 값과 순서를 그대로 content에 반영하고 변경을 알린다")
     func preservesContentOrder() async throws {
         // Arrange: ViewModel이 다시 정렬하는 오류를 잡기 위해 공급 순서를 최신순과 다르게 둔다.
-        let races = [Race(sessionID: 20, name: "Earlier GP", startsAt: Date(timeIntervalSince1970: 100), location: nil),
-                     Race(sessionID: 10, name: "Later GP", startsAt: Date(timeIntervalSince1970: 200), location: "Circuit")]
+        let races = [Race(sessionID: 20, season: 2026, name: "Earlier GP", startsAt: Date(timeIntervalSince1970: 100), location: nil),
+                     Race(sessionID: 10, season: 2026, name: "Later GP", startsAt: Date(timeIntervalSince1970: 200), location: "Circuit")]
         try await withPresentation { presentation, useCase in
             presentation.load()
             let request = try await useCase.request(at: 0)
@@ -277,7 +277,7 @@ final class RaceListViewModelTests {
 
 private extension RaceListViewModelTests {
     var sampleRaces: [Race] {
-        [Race(sessionID: 99, name: "Test Grand Prix", startsAt: Date(timeIntervalSince1970: 500), location: "Circuit")]
+        [Race(sessionID: 99, season: 2026, name: "Test Grand Prix", startsAt: Date(timeIntervalSince1970: 500), location: "Circuit")]
     }
 
     func result(_ response: LateResponse) -> Result<[Race], any Error> {

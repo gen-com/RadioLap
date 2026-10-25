@@ -1,0 +1,29 @@
+[
+  {
+    "session_key": 1,
+    "meeting_key": 10,
+    "driver_number": 9,
+    "position": null,
+    "dnf": true,
+    "dns": true,
+    "dsq": true
+  },
+  {
+    "session_key": 1,
+    "meeting_key": 10,
+    "driver_number": 7,
+    "position": 5,
+    "dnf": true,
+    "dns": false,
+    "dsq": false
+  },
+  {
+    "session_key": 1,
+    "meeting_key": 10,
+    "driver_number": 99,
+    "position": 1,
+    "dnf": false,
+    "dns": false,
+    "dsq": true
+  }
+]

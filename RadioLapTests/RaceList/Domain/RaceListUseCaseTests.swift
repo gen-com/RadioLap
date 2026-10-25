@@ -11,11 +11,11 @@ final class RaceListUseCaseTests {
 
     // MARK: - 테스트: 조회와 선별
 
-    @Test("정상 후보를 식별자·이름·시작 시각·장소가 유지된 레이스로 반환한다")
+    @Test("정상 후보를 식별자·시즌·이름·시작 시각·장소가 유지된 레이스로 반환한다")
     func returnsExpectedRace() async throws {
         // Arrange
         let useCase = useCase(candidates: [candidate()])
-        let expected = Race(sessionID: 101, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 101, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         // Act
         let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)
@@ -33,7 +33,7 @@ final class RaceListUseCaseTests {
             return [input]
         }
         let useCase: any RaceListUseCase = RaceListInteractor(repository: repository)
-        let expected = Race(sessionID: 101, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 101, season: year, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         // Act
         let races = try await useCase.fetchRaces(year: year, endedBefore: cutoff)
@@ -48,7 +48,7 @@ final class RaceListUseCaseTests {
         let useCase = useCase(candidates: [candidate()])
         let boundary = end.addingTimeInterval(secondsAfterEnd)
         let expected: [Race] = secondsAfterEnd > 0
-            ? [Race(sessionID: 101, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")]
+            ? [Race(sessionID: 101, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")]
             : []
 
         // Act
@@ -65,7 +65,7 @@ final class RaceListUseCaseTests {
                      candidate(id: 2, kind: .other), candidate(id: 3, cancelled: true),
                      candidate(id: 4, meetings: [meeting(cancelled: true)]), candidate()]
         let useCase = useCase(candidates: input)
-        let expected = Race(sessionID: 101, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 101, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         // Act
         let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)
@@ -95,7 +95,7 @@ final class RaceListUseCaseTests {
                        candidate(cancelled: nil), candidate(startsAt: nil), candidate(endsAt: nil),
                        candidate(endsAt: start), candidate(endsAt: start.addingTimeInterval(-1))]
         let healthy = candidate(id: 99)
-        let expected = Race(sessionID: 99, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 99, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         for input in invalid {
             // Act: 제외 대상만 있는 경우와 다른 정상 결승이 함께 있는 경우를 확인한다.
@@ -116,7 +116,7 @@ final class RaceListUseCaseTests {
                        candidate(meetings: [meeting(season: nil)]), candidate(meetings: [meeting(cancelled: nil)]),
                        candidate(meetings: [meeting(season: 2025)])]
         let healthy = candidate(id: 99)
-        let expected = Race(sessionID: 99, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 99, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         for input in invalid {
             // Act
@@ -135,7 +135,7 @@ final class RaceListUseCaseTests {
         let meetings = [meeting(name: nil), meeting(season: nil), meeting(cancelled: nil), meeting()]
         let input = candidate(meetings: reversed ? Array(meetings.reversed()) : meetings)
         let useCase = useCase(candidates: [input])
-        let expected = Race(sessionID: 101, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 101, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         // Act
         let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)
@@ -150,7 +150,7 @@ final class RaceListUseCaseTests {
         let incomplete = [candidate(startsAt: nil), candidate(endsAt: nil)]
         let ordered = reversed ? Array(incomplete.reversed()) : incomplete
         let useCase = useCase(candidates: ordered + [candidate(id: 99)])
-        let expected = Race(sessionID: 99, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 99, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         // Act
         let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)
@@ -182,7 +182,7 @@ final class RaceListUseCaseTests {
         let input = [repeated, repeated, candidate(id: 202)]
         let useCase = useCase(candidates: reversed ? Array(input.reversed()) : input)
         let expected = [101, 202].map {
-            Race(sessionID: $0, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+            Race(sessionID: $0, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
         }
 
         // Act
@@ -201,7 +201,7 @@ final class RaceListUseCaseTests {
                          candidate(season: 2025), candidate(kind: .other), candidate(cancelled: true),
                          candidate(meetings: [meeting(season: 2025)]),
                          candidate(meetings: [meeting(cancelled: true)])]
-        let expected = Race(sessionID: 99, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 99, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         for conflict in conflicts {
             let pair = [candidate(), conflict]
@@ -225,7 +225,7 @@ final class RaceListUseCaseTests {
             let meetings = [meeting(), conflict]
             let input = candidate(meetings: reversed ? Array(meetings.reversed()) : meetings)
             let useCase = useCase(candidates: [input, candidate(id: 99)])
-            let expected = Race(sessionID: 99, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+            let expected = Race(sessionID: 99, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
             // Act
             let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)
@@ -254,7 +254,7 @@ final class RaceListUseCaseTests {
         // Arrange
         let input = [candidate(meetings: [meeting(name: name)]), candidate()]
         let useCase = useCase(candidates: reversed ? Array(input.reversed()) : input)
-        let expected = Race(sessionID: 101, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
+        let expected = Race(sessionID: 101, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")
 
         // Act
         let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)
@@ -271,7 +271,7 @@ final class RaceListUseCaseTests {
         // Arrange: 모두 없음, 모두 동일, 일부 누락을 검증한다.
         let input = [candidate(location: location), candidate(location: includeMissing ? nil : location)]
         let useCase = useCase(candidates: input)
-        let expected = Race(sessionID: 101, name: "Test Grand Prix", startsAt: start, location: location)
+        let expected = Race(sessionID: 101, season: 2026, name: "Test Grand Prix", startsAt: start, location: location)
 
         // Act
         let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)
@@ -285,7 +285,7 @@ final class RaceListUseCaseTests {
         // Arrange
         let input = [candidate(), candidate(location: "Other Circuit"), candidate(location: nil)]
         let useCase = useCase(candidates: reversed ? Array(input.reversed()) : input)
-        let expected = Race(sessionID: 101, name: "Test Grand Prix", startsAt: start, location: nil)
+        let expected = Race(sessionID: 101, season: 2026, name: "Test Grand Prix", startsAt: start, location: nil)
 
         // Act
         let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)
@@ -300,9 +300,9 @@ final class RaceListUseCaseTests {
         let later = start.addingTimeInterval(60)
         let input = [candidate(id: 303), candidate(id: 202, startsAt: later), candidate(id: 101, startsAt: later)]
         let useCase = useCase(candidates: reversed ? Array(input.reversed()) : input)
-        let expected = [Race(sessionID: 101, name: "Test Grand Prix", startsAt: later, location: "Test Circuit"),
-                        Race(sessionID: 202, name: "Test Grand Prix", startsAt: later, location: "Test Circuit"),
-                        Race(sessionID: 303, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")]
+        let expected = [Race(sessionID: 101, season: 2026, name: "Test Grand Prix", startsAt: later, location: "Test Circuit"),
+                        Race(sessionID: 202, season: 2026, name: "Test Grand Prix", startsAt: later, location: "Test Circuit"),
+                        Race(sessionID: 303, season: 2026, name: "Test Grand Prix", startsAt: start, location: "Test Circuit")]
 
         // Act
         let races = try await useCase.fetchRaces(year: 2026, endedBefore: cutoff)

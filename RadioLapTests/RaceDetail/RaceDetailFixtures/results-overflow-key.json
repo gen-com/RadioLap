@@ -1,0 +1,11 @@
+[
+  {
+    "session_key": 1,
+    "meeting_key": 10,
+    "driver_number": 9223372036854775808,
+    "position": 1,
+    "dnf": false,
+    "dns": false,
+    "dsq": false
+  }
+]
