@@ -68,7 +68,7 @@ nonisolated struct RaceListInteractor: RaceListUseCase {
         // 원래 후보·대회 연결을 유지하고 다른 후보에서 필수 값을 보충하지 않는다.
         for candidate in candidates {
             try Task.checkCancellation()
-            guard candidate.season == year, candidate.kind == .race, candidate.isCancelled == false,
+            guard let season = candidate.season, season == year, candidate.kind == .race, candidate.isCancelled == false,
                   let start = candidate.startsAt, let end = candidate.endsAt,
                   end > start, end < endedBefore
             else { continue }
@@ -78,7 +78,7 @@ nonisolated struct RaceListInteractor: RaceListUseCase {
                 guard meeting.season == year, meeting.isCancelled == false,
                       let name = usableName(meeting.name)
                 else { continue }
-                return Race(sessionID: id, name: name, startsAt: start, location: location)
+                return Race(sessionID: id, season: season, name: name, startsAt: start, location: location)
             }
         }
         return nil
