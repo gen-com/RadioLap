@@ -17,9 +17,10 @@
 			membershipExceptions = (
 				RaceList/AGENTS.md,
 				RaceList/Docs/CompletionCriteria.md,
-				RaceList/Docs/Context.md,
 				RaceList/Docs/PresentationState.md,
 				RaceList/Docs/RepositoryContract.md,
+				RaceList/Docs/UseCaseContract.md,
+				RaceList/README.md,
 			);
 			target = 4BEEBFB1307F38D500E0AA3A /* RadioLap */;
 		};
