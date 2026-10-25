@@ -15,6 +15,12 @@
 		A14D0C000000000000000001 /* Exceptions for "RadioLap" folder in "RadioLap" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				RaceDetail/AGENTS.md,
+				RaceDetail/Docs/CompletionCriteria.md,
+				RaceDetail/Docs/PresentationState.md,
+				RaceDetail/Docs/RepositoryContract.md,
+				RaceDetail/Docs/UseCaseContract.md,
+				RaceDetail/README.md,
 				RaceList/AGENTS.md,
 				RaceList/Docs/CompletionCriteria.md,
 				RaceList/Docs/PresentationState.md,

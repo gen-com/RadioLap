@@ -116,7 +116,7 @@ Repository 테스트는 자료의 요청·해석·후보 변환을 확인합니�
 공통 아키텍처 규칙은 이 문서에 유지합니다. 기능별 문맥·계약·완료기준은 각 기능의 문서에서, 작업 범위와 승인 절차는 AGENTS.md에서 확인합니다.
 
 - [목록 작업 안내](../RadioLap/RaceList/AGENTS.md): 목록 작업 범위·Repository·UseCase 계약·화면 상태·완료기준의 진입점
-- [상세 작업 안내](../RadioLap/RaceDetail/AGENTS.md): 상세 문맥·Repository 계약·완료기준의 진입점
+- [상세 작업 안내](../RadioLap/RaceDetail/AGENTS.md): 상세 목적·Repository·UseCase·화면 계약·완료기준의 진입점
 - [코드 작성 규칙](CODING_CONVENTIONS.md): 메서드 명명과 SwiftUI 화면 구성
 - [문서화 규칙](DOCUMENTATION.md): Swift 파일 헤더와 Domain 모델·Repository 계약의 문서 주석
 - [테스트 작성 원칙](TESTING.md): 계약 기반 검증과 테스트 구성

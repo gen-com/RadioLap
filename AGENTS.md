@@ -48,4 +48,4 @@
 | 문서 | 역할 |
 | --- | --- |
 | [레이스 목록 작업 안내](RadioLap/RaceList/AGENTS.md) | 목록의 문맥·Repository 계약·화면 상태·완료기준 진입점입니다. |
-| [레이스 상세 작업 안내](RadioLap/RaceDetail/AGENTS.md) | 상세의 문맥·Repository 계약·완료기준 진입점입니다. |
+| [레이스 상세 작업 안내](RadioLap/RaceDetail/AGENTS.md) | 상세의 목적·Repository·UseCase·화면 계약·완료기준 진입점입니다. |

@@ -27,6 +27,7 @@ protocol RaceListUseCase: Sendable {
 ```swift
 struct Race: Identifiable, Equatable, Sendable {
     let sessionID: Int
+    let season: Int
     let name: String
     let startsAt: Date
     let location: String?
@@ -35,7 +36,7 @@ struct Race: Identifiable, Equatable, Sendable {
 }
 ```
 
-`sessionID`는 결승 식별자, `name`은 대회 이름, `startsAt`은 결승 시작 절대 시각입니다. `location`이 nil이면 장소 정보가 없다는 뜻입니다. 날짜 표시 문자열·화면 상태는 포함하지 않습니다.
+`sessionID`는 결승 식별자, `season`은 검증된 세션의 시즌, `name`은 대회 이름, `startsAt`은 결승 시작 절대 시각입니다. `location`이 nil이면 장소 정보가 없다는 뜻입니다. 날짜 표시 문자열·화면 상태는 포함하지 않습니다. `season`은 요청 시즌 및 연결 대회와 일치함을 확인한 세션의 값을 보존합니다. 날짜에서 계산하거나 후보의 누락을 요청 시즌으로 보충하지 않습니다. 목록에서 선택한 `Race` 전체를 상세에 전달하며 상세는 이 기본 정보를 다시 조회하지 않습니다.
 
 ## 입력 후보 모델
 
@@ -45,7 +46,7 @@ Repository가 제공하는 `RaceCandidate`의 확정된 속성과 타입은 [후
 - `kind == .race`는 결승, `.other`는 결승이 아님이 확인된 세션입니다. nil은 판별 불가이며 other와 구분합니다.
 - 이름·시각의 nil은 해당 정보를 사용할 수 없다는 뜻으로, 아래 항목 제외 정책을 적용합니다. 빈 문자열·공백 이름과 잘못된 시각 관계도 후보에 보존되어 있습니다.
 - 식별자·시즌·종류·취소 여부의 nil은 불확실성을 표현합니다. 임의로 기본값을 넣지 않고 아래 불완전 후보 정책을 적용합니다.
-- 유효한 후보를 `Race`로 반환할 때 식별자·이름·시작 시각은 필수 값이 되고 장소만 Optional로 유지됩니다.
+- 유효한 후보를 `Race`로 반환할 때 식별자·시즌·이름·시작 시각은 필수 값이 되고 장소만 Optional로 유지됩니다.
 
 ## 선별과 정제
 
