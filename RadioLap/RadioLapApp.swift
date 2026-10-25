@@ -1,9 +1,6 @@
 //
 //  RadioLapApp.swift
 //  RadioLap
-//
-//  Created by 구병조 on 10/14/26.
-//
 
 import SwiftUI
 
@@ -13,7 +10,9 @@ struct RadioLapApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RaceListView(dependency: component)
+            RaceListView(dependency: component) { race in
+                RaceDetailView(race: race, dependency: component)
+            }
         }
     }
 }

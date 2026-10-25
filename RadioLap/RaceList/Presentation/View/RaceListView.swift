@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// 화면의 수명 동안 ViewModel을 소유하며, 조회 상태를 표시하고 화면 이동을 관리한다.
-struct RaceListView<Model: RaceListPresentation>: View {
+struct RaceListView<Model: RaceListPresentation, Detail: View>: View {
     @Environment(\.scenePhase) private var scenePhase
     
     @State private var viewModel: Model
@@ -15,12 +15,16 @@ struct RaceListView<Model: RaceListPresentation>: View {
     @State private var hasRequestedInitialLoad = false
     @State private var scrollPosition = ScrollPosition(edge: .top)
 
-    init(viewModel: Model) {
+    private let detail: (Race) -> Detail
+
+    init(viewModel: Model, @ViewBuilder detail: @escaping (Race) -> Detail) {
         _viewModel = State(initialValue: viewModel)
+        self.detail = detail
     }
 
-    init(dependency: any RaceListDependency) where Model == RaceListViewModel {
-        self.init(viewModel: RaceListViewModel(useCase: dependency.raceListUseCase))
+    init(dependency: any RaceListDependency, @ViewBuilder detail: @escaping (Race) -> Detail)
+    where Model == RaceListViewModel {
+        self.init(viewModel: RaceListViewModel(useCase: dependency.raceListUseCase), detail: detail)
     }
 
     var body: some View {
@@ -34,7 +38,7 @@ struct RaceListView<Model: RaceListPresentation>: View {
                             state: viewModel.state,
                             timeZone: timeZone,
                             onSelect: { race in
-                                selection = RaceDestination(sessionID: race.sessionID, name: race.name)
+                                selection = RaceDestination(race: race)
                             },
                             onRetry: { viewModel.load() }
                         )
@@ -56,7 +60,7 @@ struct RaceListView<Model: RaceListPresentation>: View {
             }
             .onDisappear { viewModel.cancel() }
             .navigationDestination(item: $selection) { destination in
-                RaceDetailPlaceholder(sessionID: destination.sessionID, name: destination.name)
+                detail(destination.race)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name.NSSystemTimeZoneDidChange)) { _ in
@@ -100,24 +104,13 @@ private struct RaceListSeasonHeaderView: View {
 }
 
 private struct RaceDestination: Hashable {
-    let sessionID: Int
-    let name: String
-}
+    let race: Race
 
-/// 목록의 레이스 선택·이동을 확인하는 임시 화면.
-private struct RaceDetailPlaceholder: View {
-    let sessionID: Int
-    let name: String
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.race.sessionID == rhs.race.sessionID
+    }
 
-    var body: some View {
-        ContentUnavailableView {
-            Label(name, systemImage: "flag.checkered")
-        } description: {
-            Text("레이스 상세 화면을 준비하고 있습니다.")
-        }
-        .navigationTitle("레이스 상세")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.visible, for: .navigationBar)
-        .accessibilityIdentifier("raceDetail.\(sessionID)")
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(race.sessionID)
     }
 }
