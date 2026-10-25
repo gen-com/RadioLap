@@ -6,9 +6,12 @@
 import Foundation
 
 /// 결승 목록과 상세 화면 진입에 사용하는 레이스 정보.
-struct Race: Identifiable, Equatable, Sendable {
+nonisolated struct Race: Identifiable, Equatable, Sendable {
     /// 결승 세션의 고유 식별자. 레이스 선택 후 상세 데이터를 조회할 때 사용한다.
     let sessionID: Int
+
+    /// 목록에서 조회 시즌·연결 대회와 일치함을 검증한 세션의 시즌. 날짜에서 계산하지 않는다.
+    let season: Int
 
     /// 목록에 표시할 대회 이름.
     let name: String

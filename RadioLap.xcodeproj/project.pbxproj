@@ -33,6 +33,15 @@
 		D14D0C00000000000000000C /* Exceptions for "RadioLap" folder in "RadioLapTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				RaceDetail/Domain/RaceDetail.swift,
+				RaceDetail/Domain/RaceDetailCandidate.swift,
+				RaceDetail/Domain/RaceDetailRepository.swift,
+				RaceDetail/Domain/RaceDetailUseCase.swift,
+				RaceDetail/Domain/RaceDriver.swift,
+				RaceDetail/Domain/RaceResult.swift,
+				RaceDetail/Presentation/ViewModel/RaceDetailPresentation.swift,
+				RaceDetail/Presentation/ViewModel/RaceDetailState.swift,
+				RaceDetail/Presentation/ViewModel/RaceDriverGroup.swift,
 				RaceList/Data/DemoRaceListProvider.swift,
 				RaceList/Data/Fixtures/meetings.json,
 				RaceList/Data/Fixtures/sessions.json,
