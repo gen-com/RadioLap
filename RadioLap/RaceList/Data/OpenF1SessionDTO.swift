@@ -5,23 +5,15 @@
 
 import Foundation
 
-/// OpenF1 응답 중 레이스 목록에 필요한 필드. 미사용 필드는 디코딩하지 않는다.
+/// OpenF1 후보 자료. 개별 필드의 누락·해석 불가는 nil로 보존한다.
 nonisolated struct OpenF1SessionDTO: Decodable, Equatable, Sendable {
-    /// 세션 고유 식별자.
-    let sessionKey: Int
-    /// 연결할 대회 식별자.
-    let meetingKey: Int
-    /// 세션 종류. Race만 결승이다.
-    let sessionName: String
-    /// 세션 시즌 연도.
-    let year: Int
-    /// 세션 취소 여부.
-    let isCancelled: Bool
-    /// 시차가 반영된 절대 시작 시각.
-    let dateStart: Date
-    /// 시차가 반영된 절대 종료 시각.
-    let dateEnd: Date
-    /// 개최 장소. 누락과 null은 nil이다.
+    let sessionKey: Int?
+    let meetingKey: Int?
+    let sessionName: String?
+    let year: Int?
+    let isCancelled: Bool?
+    let dateStart: Date?
+    let dateEnd: Date?
     let location: String?
 
     private enum CodingKeys: String, CodingKey {
@@ -33,5 +25,17 @@ nonisolated struct OpenF1SessionDTO: Decodable, Equatable, Sendable {
         case dateStart = "date_start"
         case dateEnd = "date_end"
         case location = "location"
+    }
+
+    init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        sessionKey = try? values.decode(Int.self, forKey: .sessionKey)
+        meetingKey = try? values.decode(Int.self, forKey: .meetingKey)
+        sessionName = try? values.decode(String.self, forKey: .sessionName)
+        year = try? values.decode(Int.self, forKey: .year)
+        isCancelled = try? values.decode(Bool.self, forKey: .isCancelled)
+        dateStart = try? values.decode(Date.self, forKey: .dateStart)
+        dateEnd = try? values.decode(Date.self, forKey: .dateEnd)
+        location = try? values.decode(String.self, forKey: .location)
     }
 }

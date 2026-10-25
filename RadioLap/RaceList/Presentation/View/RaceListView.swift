@@ -5,20 +5,22 @@
 
 import SwiftUI
 
-/// 화면의 수명 동안 ViewModel을 소유하고 공개 상태와 화면 이동을 관리한다.
-struct RaceListView<Model: RaceListViewModelProtocol>: View {
+/// 화면의 수명 동안 ViewModel을 소유하며, 조회 상태를 표시하고 화면 이동을 관리한다.
+struct RaceListView<Model: RaceListPresentation>: View {
     @Environment(\.scenePhase) private var scenePhase
     
     @State private var viewModel: Model
     @State private var timeZone = TimeZone.current
     @State private var selection: RaceDestination?
+    @State private var hasRequestedInitialLoad = false
+    @State private var scrollPosition = ScrollPosition(edge: .top)
 
     init(viewModel: Model) {
         _viewModel = State(initialValue: viewModel)
     }
 
     init(dependency: any RaceListDependency) where Model == RaceListViewModel {
-        self.init(viewModel: RaceListViewModel(repository: dependency.raceListRepository))
+        self.init(viewModel: RaceListViewModel(useCase: dependency.raceListUseCase))
     }
 
     var body: some View {
@@ -46,7 +48,12 @@ struct RaceListView<Model: RaceListViewModelProtocol>: View {
             }
             .background(Color(.systemBackground))
             .toolbar(.hidden, for: .navigationBar)
-            .task { viewModel.load() }
+            .scrollPosition($scrollPosition)
+            .task {
+                guard !hasRequestedInitialLoad else { return }
+                hasRequestedInitialLoad = true
+                viewModel.load()
+            }
             .onDisappear { viewModel.cancel() }
             .navigationDestination(item: $selection) { destination in
                 RaceDetailPlaceholder(sessionID: destination.sessionID, name: destination.name)
@@ -97,7 +104,7 @@ private struct RaceDestination: Hashable {
     let name: String
 }
 
-/// 상세 기능 구현 전, 선택한 레이스의 이동 연결만 제공한다.
+/// 목록의 레이스 선택·이동을 확인하는 임시 화면.
 private struct RaceDetailPlaceholder: View {
     let sessionID: Int
     let name: String
@@ -113,13 +120,4 @@ private struct RaceDetailPlaceholder: View {
         .toolbar(.visible, for: .navigationBar)
         .accessibilityIdentifier("raceDetail.\(sessionID)")
     }
-}
-
-@MainActor
-@Observable
-private final class PreviewRaceListModel: RaceListViewModelProtocol {
-    var state: RaceListState
-    init(_ state: RaceListState) { self.state = state }
-    func load() {}
-    func cancel() {}
 }

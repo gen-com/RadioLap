@@ -5,7 +5,7 @@
 
 import Foundation
 
-/// 절대 시각을 표시 시점의 기기 시간대와 언어로 표현한다.
+/// 절대 시각을 전달받은 시간대와 언어로 표현한다.
 struct RaceDateLabels {
     let month: String
     let day: String
