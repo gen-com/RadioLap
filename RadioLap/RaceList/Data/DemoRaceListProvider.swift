@@ -33,16 +33,22 @@ nonisolated struct DemoRaceListProvider: RaceListRepository {
 
     /// 요청 시즌을 자료 공급 함수에 전달하고, 응답을 연결해 정제 전 후보로 변환한다.
     func fetchRaceCandidates(year: Int) async throws -> [RaceCandidate] {
-        try Task.checkCancellation()
-        let responses = try await loadResponses(year)
-        try Task.checkCancellation()
-        let decoded = try decodeResponses(
-            meetingsData: responses.meetings, sessionsData: responses.sessions
-        )
-        let meetingsByID = try groupMeetingsByID(decoded.meetings)
-        let candidates = try mapCandidates(decoded.sessions, meetingsByID: meetingsByID)
-        try Task.checkCancellation()
-        return candidates
+        do {
+            try Task.checkCancellation()
+            let responses = try await loadResponses(year)
+            try Task.checkCancellation()
+            let decoded = try decodeResponses(meetingsData: responses.meetings, sessionsData: responses.sessions)
+            let meetingsByID = try groupMeetingsByID(decoded.meetings)
+            let candidates = try mapCandidates(decoded.sessions, meetingsByID: meetingsByID)
+            try Task.checkCancellation()
+            return candidates
+        } catch {
+            try Task.checkCancellation()
+            if error is CancellationError || (error as? URLError)?.code == .cancelled {
+                throw CancellationError()
+            }
+            throw error
+        }
     }
 
     private func decodeResponses(

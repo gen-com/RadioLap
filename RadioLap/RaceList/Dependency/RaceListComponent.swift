@@ -5,14 +5,21 @@
 
 import Foundation
 
-/// 목록 조회 의존성을 조립하고 상세 진입에 필요한 Component를 제공한다.
 @MainActor
-final class RaceListComponent {
-    let raceListUseCase: any RaceListUseCase
-    let raceDetailComponent = RaceDetailComponent()
+protocol RaceListDependency {
+    var openF1Client: OpenF1Client { get }
+}
 
-    init() {
-        let repository = DemoRaceListProvider(bundle: .main)
+/// 기능의 조회 의존성을 조립한다.
+@MainActor
+final class RaceListComponent: RaceDetailDependency {
+    let openF1Client: OpenF1Client
+    let raceListUseCase: any RaceListUseCase
+    lazy var raceDetailComponent = RaceDetailComponent(dependency: self)
+
+    init(dependency: any RaceListDependency) {
+        openF1Client = dependency.openF1Client
+        let repository = OpenF1RaceListProvider(client: openF1Client)
         raceListUseCase = RaceListInteractor(repository: repository)
     }
 }

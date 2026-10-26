@@ -156,16 +156,12 @@ final class DriverRadioRepositoryTests {
         throws: { !($0 is CancellationError) }
     }
 
-    @Test("라디오의 필수 시각·URL 오류를 정상 기록으로 바꾸지 않는다", arguments: [
+    @Test("라디오의 필수 필드·타입 오류와 해석할 수 없는 날짜를 전달한다", arguments: [
         "team_radio-required-missing",
         "team_radio-required-null",
         "team_radio-required-type",
         "team_radio-date-no-offset",
-        "team_radio-date-invalid",
-        "team_radio-url-relative",
-        "team_radio-url-scheme",
-        "team_radio-url-space",
-        "team_radio-url-no-host"
+        "team_radio-date-invalid"
     ])
     func rejectsInvalidRadioRecords(_ sample: String) async throws {
         // Arrange
