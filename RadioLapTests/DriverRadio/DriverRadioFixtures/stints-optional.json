@@ -1,0 +1,33 @@
+[
+  {
+    "session_key": 11388,
+    "driver_number": 3
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_start": null,
+    "lap_end": null,
+    "compound": null
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_start": 1,
+    "compound": "SOFT"
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_start": null,
+    "lap_end": 20,
+    "compound": "MEDIUM"
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_start": 21,
+    "lap_end": 40,
+    "compound": null
+  }
+]

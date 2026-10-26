@@ -1,0 +1,15 @@
+[
+  {
+    "session_key": 2,
+    "driver_number": 44,
+    "date": "2026-10-11T12:00:00.125Z",
+    "recording_url": "https://example.com/second-session.mp3",
+    "lap_number": 7,
+    "date_start": "2026-10-11T12:00:00.125Z",
+    "lap_duration": 88,
+    "position": 2,
+    "lap_start": 1,
+    "lap_end": 10,
+    "compound": "HARD"
+  }
+]

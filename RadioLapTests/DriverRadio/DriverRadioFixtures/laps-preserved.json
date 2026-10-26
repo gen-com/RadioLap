@@ -1,0 +1,32 @@
+[
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_number": 14,
+    "date_start": "2026-10-11T12:00:00.125Z",
+    "lap_duration": 90.5,
+    "unused": {
+      "anything": true
+    }
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_number": 14,
+    "date_start": "2026-10-11T12:00:00.125Z",
+    "lap_duration": 90.5,
+    "unused": {
+      "anything": true
+    }
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_number": 14,
+    "date_start": "2026-10-11T12:00:00.125Z",
+    "lap_duration": -1,
+    "unused": {
+      "anything": true
+    }
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "date": "2026-10-11T12:00:00.125Z",
+    "recording_url": "https://example.com/radio.mp3?clip=1",
+    "unused": {
+      "anything": true
+    }
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "date": true,
+    "recording_url": "https://example.com/radio.mp3?clip=1",
+    "unused": {
+      "anything": true
+    }
+  }
+]

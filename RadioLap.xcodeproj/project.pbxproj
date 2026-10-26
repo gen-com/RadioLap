@@ -101,6 +101,7 @@
 		D14D0C000000000000000002 /* RadioLapTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFolders = (
+				DriverRadio/DriverRadioFixtures,
 				RaceDetail/RaceDetailFixtures,
 				RaceList/Fixtures,
 			);

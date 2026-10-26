@@ -1,0 +1,11 @@
+[
+  {
+    "driver_number": 3,
+    "lap_start": 1,
+    "lap_end": 20,
+    "compound": " SOFT ",
+    "unused": {
+      "anything": true
+    }
+  }
+]

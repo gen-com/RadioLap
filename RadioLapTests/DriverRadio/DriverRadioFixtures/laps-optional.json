@@ -1,0 +1,27 @@
+[
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_number": 1
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_number": 2,
+    "date_start": null,
+    "lap_duration": null
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_number": 3,
+    "lap_duration": 90.5
+  },
+  {
+    "session_key": 11388,
+    "driver_number": 3,
+    "lap_number": 4,
+    "date_start": "2026-10-11T12:00:00.125Z",
+    "lap_duration": null
+  }
+]
