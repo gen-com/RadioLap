@@ -40,17 +40,22 @@
 		D14D0C00000000000000000C /* Exceptions for "RadioLap" folder in "RadioLapTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				DriverRadio/Data/DemoDriverRadioProvider.swift,
 				DriverRadio/Domain/DriverLap.swift,
 				DriverRadio/Domain/DriverPosition.swift,
+				DriverRadio/Domain/DriverRadioInteractor.swift,
 				DriverRadio/Domain/DriverRadioRepository.swift,
 				DriverRadio/Domain/DriverRadioUseCase.swift,
 				DriverRadio/Domain/DriverStint.swift,
 				DriverRadio/Domain/RadioContext.swift,
 				DriverRadio/Domain/RadioRecord.swift,
 				DriverRadio/Domain/RadioRecordID.swift,
+				DriverRadio/Playback/AVPlayerRadioAudioTransport.swift,
 				DriverRadio/Playback/RadioAudioTransport.swift,
 				DriverRadio/Playback/RadioPlayback.swift,
+				DriverRadio/Playback/RadioPlayer.swift,
 				DriverRadio/Presentation/ViewModel/DriverRadioPresentation.swift,
+				DriverRadio/Presentation/ViewModel/DriverRadioViewModel.swift,
 				DriverRadio/Presentation/ViewModel/RadioLoadState.swift,
 				RaceDetail/Data/DemoRaceDetailProvider.swift,
 				RaceDetail/Data/Fixtures/drivers.json,
