@@ -8,11 +8,11 @@
 
 상세에서 선택한 Race와 RaceDriver를 전달받아 레이스 이름·시즌과 드라이버 이름·팀을 표시합니다. 기본 정보는 다시 조회하지 않으며, 조회와 화면 식별에는 race.sessionID와 driver.driverNumber를 사용합니다. 최종 결과를 라디오 무렵의 상황으로 사용하지 않습니다.
 
-이번 기능 범위는 데모 JSON 기반 라디오·랩·순위·스틴트 조회와 JSON의 오디오 URL을 이용한 실제 재생·일시정지입니다. 실제 데이터 API Provider, 백그라운드 재생, 대사 생성, 상세의 공개 라디오 개수 표시는 포함하지 않습니다.
+현재 기능 범위는 OpenF1 API 기반 라디오·랩·순위·스틴트 조회와 응답의 오디오 URL을 이용한 실제 재생·일시정지입니다. 데모 JSON 공급은 테스트용으로 보존합니다. 백그라운드 재생, 대사 생성, 상세의 공개 라디오 개수 표시는 포함하지 않습니다.
 
 데모 Provider·Interactor·ViewModel·재생 정책 객체와 AVPlayer 연동을 구현하고 테스트 타깃에 연결했습니다. Repository·UseCase·ViewModel·재생 정책 테스트와 기존 목록·상세 회귀 테스트, 시뮬레이터 대상 앱 빌드가 통과했습니다. View·Component와 상세 목적지를 연결했으며 상세에서 Race·RaceDriver를 보존해 전달합니다. 재생 객체는 각 라디오 화면 진입 시 한 번 생성합니다.
 
-- 구현: DemoDriverRadioProvider, DriverRadioInteractor, DriverRadioViewModel, RadioPlayer, AVPlayerRadioAudioTransport. 재생 정책은 RadioAudioTransport 대역으로 확인하고 실제 시스템 이벤트 연결은 코드로 검토했습니다.
+- 구현: DemoDriverRadioProvider·OpenF1DriverRadioProvider와 교신·랩·순위·스틴트 DTO, DriverRadioInteractor, DriverRadioViewModel, RadioPlayer, AVPlayerRadioAudioTransport. 재생 정책은 RadioAudioTransport 대역으로 확인하고 실제 시스템 이벤트 연결은 코드로 검토했습니다.
 - 사용자 확인: 실제 소리의 청취·중지, 화면 예외 상태·시간대 변경, 실제 목적지 연결 후 상세 스크롤 보존을 확인했습니다.
 - 직접 확인: 시뮬레이터에서 드라이버 3의 교신 목록·선택·상황·근거 펼치기·마지막 확인 랩 표시, 원격 오디오의 재생 상태·진행·일시정지·이어 듣기·종료, 앱 전환 후 자동 재개 방지, 다른 교신 선택 시 초기화와 상세 복귀·재진입을 확인했습니다. 드라이버 81의 공개 라디오 빈 결과도 확인했습니다.
 - 검증 경계: 자동 테스트·시뮬레이터 확인과 사용자의 직접 확인을 구분합니다. 목록·상세의 기존 별도 미검증 항목은 이번 확인 범위에 포함하지 않습니다.

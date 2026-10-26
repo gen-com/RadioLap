@@ -101,3 +101,11 @@ enum RaceSessionKind: Equatable, Sendable {
 ## 관련 계약과 검증 경계
 
 식별 불가·필수 정보 부족·시즌 불일치·중복 충돌의 처리와 정렬은 [UseCase 계약](UseCaseContract.md)을 따릅니다. Repository는 판단에 필요한 정보를 보존하며 이 정책을 직접 수행하지 않습니다. 책임별 검증 경계는 [완료기준](CompletionCriteria.md#검증-경계)을 참고합니다.
+
+## 실제 API 공급
+
+OpenF1의 `meetings?year=2026`와 `sessions?year=2026&session_name=Race`를 사용합니다. URLSession 기반 공통 클라이언트는 HTTPS GET, 요청 대기 제한 30초·전체 리소스 제한 60초, HTTP 2xx 확인을 담당합니다. 자동 재시도·응답 캐시는 사용하지 않으며, 실패 후 재시도는 기존 화면 동작을 따릅니다. 통신·시간 초과·HTTP 오류는 빈 결과로 바꾸지 않고 전달하고 전송 계층 취소는 CancellationError로 통일합니다.
+
+`DemoRaceListProvider`는 파일 공급, `OpenF1RaceListProvider`는 실제 API 요청을 담당하며 각각 같은 Repository 프로토콜을 구현합니다. 두 구현체는 공통 DTO를 사용하고 각 Provider 내부에서 JSON 디코딩·자료 연결·Domain 변환을 수행합니다. 별도 Decoder 타입은 두지 않습니다. API 구현체에는 번들 초기화나 데모 지원 목록을 두지 않고, 실제 API 실패 시 데모로 대체하지 않습니다. 두 자료는 순차 요청하며 하나라도 실패하면 전체 조회를 실패시킵니다.
+
+요청은 OpenF1Request의 경로·HTTP 메서드·헤더와 기능별 Encodable Query로 표현합니다. Client는 URLComponents의 scheme·host·path·queryItems를 조립한 뒤 URLRequest를 생성합니다. 쿼리는 CodingKeys를 보존하며 문자열·정수를 지원하고 nil은 생략합니다. 배열·중첩 객체·Boolean·소수는 쿼리에서 지원하지 않습니다. Encodable 본문은 JSON으로 인코딩하고 Content-Type을 설정하지만 현재 OpenF1 조회는 본문 없는 GET입니다. 요청 조립 오류도 전송 전에 전달합니다.

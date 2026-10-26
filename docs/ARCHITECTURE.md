@@ -106,7 +106,9 @@ flowchart LR
     Child -->|자기 기능의 내부 의존성 조립| Internal["Provider · UseCase 등"]
 ```
 
-목록과 상세는 각 Component에서 데모 Provider·Interactor를 조립합니다. 현재 부모에게서 받을 공통 의존성은 없어 별도 Dependency를 두지 않고, 기능 진입 View에 해당 Component를 주입합니다. 앱은 RaceListView를 직접 선언하고, 목록·상세 View는 navigationDestination 안에서 다음 화면을 직접 선언합니다. 정해진 목적지를 교체하기 위한 View 제네릭이나 생성 클로저는 두지 않으며 각 화면의 Presentation만 제네릭으로 유지합니다. 각 View는 자기 Component에서 받은 다음 기능의 Component를 보관해 목적지에 전달합니다. AppComponent는 목록 Component를, 목록 Component는 상세 Component를 보관하며 각 기능의 UseCase는 Component 생성 시 조립합니다. ViewModel과 화면 상태는 각 View가 소유합니다. 상세 Component는 라디오 Component를 제공하고 상세 View는 Race·RaceDriver와 함께 DriverRadioView에 주입합니다. 라디오 Component는 조회 의존성을 조립하고 요청마다 새 재생 객체를 제공합니다. 라디오 View는 최초 진입 작업에서 ViewModel과 전용 재생 객체를 한 번 생성해 화면 수명 동안 보존하며 View 값의 재생성으로 오디오를 다시 만들지 않습니다. 이 조립 구조와 실제 동작의 검증 결과는 구분합니다.
+앱 Component는 앱 수명 동안 사용할 OpenF1Client를 소유합니다. 각 기능은 부모가 구현하는 Dependency를 통해 이 클라이언트를 전달받고 자기 기능의 OpenF1 Provider·Interactor를 조립합니다. OpenF1Request는 경로·메서드·헤더·타입이 있는 쿼리와 본문을 표현합니다. 클라이언트는 URLComponents로 URL과 URLRequest를 조립하고 URLSession을 공유해 전송·HTTP 오류·취소를 담당합니다. 기능별 Query는 해당 Provider 파일에 두며, 네트워크 프로토콜이나 Builder 계층은 추가하지 않습니다. 기능별 Demo Provider는 번들 파일 공급을, OpenF1 Provider는 실제 API 요청을 담당하며 각각 같은 Repository 계약을 구현합니다. 각 기능은 공통 DTO를 사용하며 별도 Decoder 타입을 두지 않습니다. 각 Provider가 JSONDecoder로 DTO를 읽고 자료 연결·요청 대상 확인·Domain 변환을 수행합니다. API Provider에 데모 초기화·지원 목록을 두거나 서로의 Provider를 호출하지 않습니다. API 실패를 데모 데이터로 대체하지 않습니다.
+
+AppComponent는 목록 Component를, 목록은 상세 Component를, 상세는 라디오 Component를 처음 사용할 때 생성해 보관합니다. 각 기능의 UseCase는 해당 Component 생성 시 조립합니다. 앱과 기능 진입 View는 화면을 직접 선언하며 ViewModel과 화면 상태는 View가 소유합니다. 상세는 Race·RaceDriver를 라디오에 전달합니다. 라디오 Component는 요청마다 전용 재생 객체를 제공하고, 라디오 View는 최초 진입 시 한 번 생성해 화면 수명 동안 보존합니다.
 
 Repository 테스트는 자료의 요청·해석·후보 변환을 확인합니다. UseCase 테스트는 Repository 테스트 대역을 통해 선별·정제·정렬 규칙을 확인하고, ViewModel 테스트는 UseCase 테스트 대역으로 화면 상태와 요청 유효성을 확인합니다.
 

@@ -31,7 +31,7 @@ protocol RaceDetailRepository: Sendable {
 
 ## 요청과 연결
 
-요청한 sessionID로 drivers와 session_result 자료를 조회하고 session_key + driver_number로 연결합니다. 이름·배열 순서·순위로 연결하지 않습니다. 두 자료 중 하나라도 조회·해석에 실패하면 전체 오류를 전달합니다. 드라이버별 추가 요청이나 세션·대회·라디오·랩·스틴트 조회는 하지 않습니다. 실제 API Provider 구현은 현재 범위에 포함하지 않습니다.
+요청한 sessionID로 drivers와 session_result 자료를 조회하고 session_key + driver_number로 연결합니다. 이름·배열 순서·순위로 연결하지 않습니다. 두 자료 중 하나라도 조회·해석에 실패하면 전체 오류를 전달합니다. 드라이버별 추가 요청이나 세션·대회·라디오·랩·스틴트 조회는 하지 않습니다. 실제 API 공급은 아래 기준을 따릅니다.
 
 - 요청과 다른 session_key가 있으면 전체 오류입니다. 정상 자료와 섞여 있어도 조용히 제외하지 않습니다.
 - 참가자가 없는 결과는 unmatchedResults로 보존합니다. 참가자를 생성하거나 결과를 버리지 않습니다.
@@ -122,3 +122,11 @@ Repository 검증은 참가자·결과 요청, 후보 반환, 중복·결과 부
 - [결과 수집 코드](https://github.com/br-g/openf1/blob/main/src/openf1/services/f1_scraping/session_result.py)는 DQ·NC·빈 순위 셀을 None으로 변환하고 각 상태를 Boolean으로 생성합니다. 이는 해당 수집 경로의 처리이며 모든 응답의 제약을 보장하지 않습니다.
 
 필드의 필수성·누락·null 처리와 상태 조합은 예제나 수집 코드만으로 확정하지 않습니다. 순위 누락·null 수용, 상태 필드 누락 거부, 각 상태의 독립적 보존은 앞서 정한 앱 정책입니다. 상태 사이의 우선순위나 상태에 따른 순위 제거 규칙을 추론하지 않습니다.
+
+## 실제 API 공급
+
+OpenF1의 `drivers?session_key=…`와 `session_result?session_key=…`를 사용합니다. URLSession 기반 공통 클라이언트는 HTTPS GET, 요청 대기 제한 30초·전체 리소스 제한 60초, HTTP 2xx 확인을 담당합니다. 자동 재시도·응답 캐시는 사용하지 않으며, 실패 후 재시도는 기존 화면 동작을 따릅니다. 통신·시간 초과·HTTP 오류는 빈 결과로 바꾸지 않고 전달하고 전송 계층 취소는 CancellationError로 통일합니다.
+
+`DemoRaceDetailProvider`는 파일 공급, `OpenF1RaceDetailProvider`는 실제 API 요청을 담당하며 각각 같은 Repository 프로토콜을 구현합니다. 두 구현체는 공통 DTO를 사용하고 각 Provider 내부에서 JSON 디코딩·자료 연결·Domain 변환을 수행합니다. 별도 Decoder 타입은 두지 않습니다. API 구현체에는 번들 초기화나 데모 지원 목록을 두지 않고, 실제 API 실패 시 데모로 대체하지 않습니다. 두 자료는 순차 요청하며 하나라도 실패하면 전체 조회를 실패시킵니다.
+
+요청은 OpenF1Request의 경로·HTTP 메서드·헤더와 기능별 Encodable Query로 표현합니다. Client는 URLComponents의 scheme·host·path·queryItems를 조립한 뒤 URLRequest를 생성합니다. 쿼리는 CodingKeys를 보존하며 문자열·정수를 지원하고 nil은 생략합니다. 배열·중첩 객체·Boolean·소수는 쿼리에서 지원하지 않습니다. Encodable 본문은 JSON으로 인코딩하고 Content-Type을 설정하지만 현재 OpenF1 조회는 본문 없는 GET입니다. 요청 조립 오류도 전송 전에 전달합니다.
