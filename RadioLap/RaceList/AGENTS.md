@@ -19,7 +19,7 @@
 - Swift 코드 작성·리뷰 시 [코드 작성 규칙](../../docs/CODING_CONVENTIONS.md)의 명명과 guard 활용 기준을 따릅니다.
 - Domain 모델과 Repository 계약의 문서 주석은 [공통 문서화 규칙](../../docs/DOCUMENTATION.md)을 따릅니다.
 - 테스트 작성·리뷰 시 [공통 테스트 작성 원칙](../../docs/TESTING.md)을 따릅니다.
-- 화면 검토 시 [와이어프레임 안내](../../docs/WIREFRAMES.md)를 읽고 연결된 HTML을 확인합니다.
+- 화면 검토 시 [와이어프레임 안내](../../docs/WIREFRAMES.md)를 읽고 [게시된 와이어프레임](https://gen-com.github.io/RadioLap/radio-lap.html)을 브라우저에서 확인합니다.
 - 데이터 모델·Repository·Provider 작업: [Repository 계약](Docs/RepositoryContract.md)을 읽습니다.
 - UseCase·Interactor와 목록 제공 규칙 작업: [UseCase 계약](Docs/UseCaseContract.md)을 읽습니다. 후보 모델을 바꾸는 경우 Repository 계약도 확인합니다.
 - ViewModel·View 작업: [화면 상태](Docs/PresentationState.md)를 읽습니다. 조회 입출력을 바꾸는 경우 UseCase·Repository 계약도 확인합니다.

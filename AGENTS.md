@@ -41,7 +41,7 @@
 | [TESTING.md](docs/TESTING.md) | 계약 기반 검증, AAA 구성, 가독성과 독립성에 관한 공통 원칙입니다. |
 | [와이어프레임 안내](docs/WIREFRAMES.md) | 화면 흐름·배치·예외 상태와 데이터 연결 기준입니다. |
 
-화면을 검토할 때는 와이어프레임 안내를 읽고 [HTML 파일](docs/radio-lap.html)을 브라우저에서 엽니다.
+화면을 검토할 때는 와이어프레임 안내를 읽고 [와이어프레임 바로 보기](https://gen-com.github.io/RadioLap/radio-lap.html)를 브라우저에서 엽니다.
 
 ### 기능별 작업 안내
 
