@@ -35,8 +35,8 @@ ViewModel은 조회 결과를 바탕으로 로딩·목록·빈 결과·실패 �
 | Data | 파일·API에서 자료 조회, 응답 해석·연결·형식 변환, 계약에 맞는 Domain 모델 반환 | 목록 제공을 위한 선별·정제·정렬, 화면 상태 |
 | Presentation / ViewModel | 조회 요청·재시도·취소, 요청 결과의 유효성 판단과 화면 상태 관리 | 파일·API 직접 접근, 외부 응답 해석, 목록 도메인 규칙 재수행 |
 | Presentation / View | 상태 표시, 날짜 표현, 사용자 이벤트 전달, 화면 생명주기에 따른 ViewModel 호출 | 외부 자료 조회·변환, 조회 결과의 유효성 판단 |
-| Dependency / 의존성 계약 | 소비자가 필요로 하는 의존성 선언 | 구체 구현 생성과 화면 동작 |
-| Dependency / Component | 구체 구현 생성과 의존성 조립 | 화면 상태 |
+| Dependency / 의존성 계약 | 기능이 부모에게서 받아야 하는 외부 의존성 선언 | 기능 내부 구현의 조립, 화면 진입 입력과 화면 동작 |
+| Dependency / Component | 자기 기능의 구체 구현 생성·의존성 조립과 다음 기능의 Component 제공 | 다른 기능의 내부 조립, 화면 상태 소유 |
 
 Domain의 계약은 호출자에게 무엇을 보장할지 정의합니다. 레이스 목록의 Repository는 외부 자료를 해석·연결해 후보 도메인 모델을 제공하고, UseCase는 후보의 선별·정제·중복 처리·최신순 정렬을 수행합니다.
 
@@ -75,40 +75,36 @@ flowchart LR
 ## 의존성 조립 규칙
 의존성 조립은 사용하는 곳 밖으로 분리합니다. 개발자가 소비자의 동작을 읽을 때 구체적인 구현체의 생성 과정까지 함께 따라가지 않도록 하고, 조립 지점에서는 어떤 구현이 연결되는지 확인할 수 있도록 하기 위함입니다.
 
-- 의존성 계약은 소비자가 필요로 하는 의존성을 선언합니다.
-- Component는 구체 Provider를 선택·생성합니다. 목록에서는 Repository를 Interactor에 주입하고, Interactor를 UseCase 계약으로 제공합니다.
+- 각 Component는 자기 기능의 구체 Provider를 선택·생성하고 내부 의존성을 조립합니다. 목록 Component는 목록 Repository를 Interactor에 주입하고, 상세 Component는 상세의 내부 의존성을 조립합니다.
+- 앱 Component는 시작 기능의 Component를, 기능 Component는 다음 기능의 Component를 제공합니다. 화면은 호출부에서 직접 선언하고 해당 기능의 Component를 주입합니다. 다음 기능의 Provider·Interactor 조립은 해당 Component에 맡기며, 화면 생성만 전달하는 메서드는 두지 않습니다.
+- Dependency는 기능이 부모에게서 받아야 하는 외부 의존성의 계약입니다. 자식 Component는 이 계약을 통해 의존성을 받고, 부모 Component는 필요한 경우 자식의 Dependency를 구현해 제공합니다. 자기 기능에서 조립할 UseCase를 부모에게 요구하기 위한 계약으로 사용하지 않습니다.
+- 부모에게서 받을 외부 의존성이 없다면 Dependency를 두지 않습니다. Component의 계층을 맞추기 위한 빈 프로토콜은 만들지 않습니다.
+- 선택한 Race처럼 탐색마다 달라지는 값은 화면 진입 입력으로 전달합니다. 부모가 제공하는 공통 의존성과 구분하며 Dependency에 넣지 않습니다.
 - 목록 ViewModel은 UseCase 계약을 주입받으며 Repository를 직접 호출하거나 Interactor·Provider를 생성하지 않습니다. 다른 기능의 소비자 의존성은 해당 기능 계약을 따릅니다.
-- 기능 진입 View는 의존성으로 ViewModel을 생성하거나 준비된 ViewModel을 전달받아 SwiftUI 상태로 소유합니다.
+- 기능 진입 View는 조립된 UseCase 등 필요한 의존성으로 ViewModel을 생성하거나 준비된 ViewModel을 전달받아 SwiftUI 상태로 소유합니다. 화면의 선택·이동 상태는 View가 소유하고, 사용자 이벤트는 해당 동작을 담당하는 객체에 전달합니다. Component는 목적지에 필요한 Component를 제공합니다. 기능 진입 View는 주입받은 자기 Component에서 필요한 의존성을 꺼내며, ViewModel에는 Component 전체가 아닌 필요한 계약만 전달합니다.
 - 보조 View에 전달할 데이터와 이벤트의 범위는 [코드 작성 규칙의 SwiftUI 화면 구성 기준](CODING_CONVENTIONS.md#swiftui-화면-구성)을 따릅니다.
-- Component는 화면 상태를 소유하지 않습니다.
+- Component는 화면 상태를 소유하지 않습니다. Component와 내부 객체의 생성 시점·공유 범위·수명은 기능 요구에 따라 별도로 정하며, 조립 계층만으로 결정하지 않습니다.
 
-다음은 **조립·전달 흐름**입니다. 화살표는 계약 구현·의존성 제공·객체 생성 관계를 나타냅니다.
+다음은 합의한 **기능별 조립과 진입 연결 방향**입니다. 화살표는 기능 진입에 필요한 Component 제공과 내부 의존성 조립 책임을 나타내며, 객체 생성 시점이나 소유 수명을 뜻하지 않습니다.
+
+```mermaid
+flowchart TD
+    App["AppComponent"] -->|목록 Component 제공| List["RaceListComponent"]
+    List -->|상세 Component 제공| Detail["RaceDetailComponent"]
+    List -->|목록 내부 조립| ListDependencies["목록 Provider · Interactor"]
+    Detail -->|상세 내부 조립| DetailDependencies["상세 Provider · Interactor"]
+```
+
+자식 기능이 외부 의존성을 요구할 때의 계약 관계는 다음과 같습니다. Dependency는 자식 기능이 정의하며, 부모가 제공할 수 있는 모든 객체가 아니라 자식에게 필요한 것만 선언합니다.
 
 ```mermaid
 flowchart LR
-    Component -->|구현| Dependency
-    Dependency -->|UseCase 계약 전달| View
-    View -->|UseCase를 전달해 생성| ViewModel
+    Parent["부모 Component"] -.->|구현| Dependency["자식 기능의 Dependency"]
+    Child["자식 Component"] -->|외부 의존성 사용| Dependency
+    Child -->|자기 기능의 내부 의존성 조립| Internal["Provider · UseCase 등"]
 ```
 
-목록의 조립 구조는 다음과 같습니다. Component는 Repository를 Interactor에 주입하고, 화면에 UseCase 계약을 제공합니다. 이 구조와 실제 동작의 검증 결과는 구분합니다.
-
-```swift
-@MainActor
-protocol RaceListDependency {
-    var raceListUseCase: any RaceListUseCase { get }
-}
-
-@MainActor
-final class AppComponent: RaceListDependency {
-    let raceListUseCase: any RaceListUseCase
-
-    init() {
-        let repository = DemoRaceListProvider(bundle: .main)
-        raceListUseCase = RaceListInteractor(repository: repository)
-    }
-}
-```
+목록과 상세는 각 Component에서 데모 Provider·Interactor를 조립합니다. 현재 부모에게서 받을 공통 의존성은 없어 별도 Dependency를 두지 않고, 기능 진입 View에 해당 Component를 주입합니다. 앱은 RaceListView를 직접 선언하고, 목록 View의 목적지 클로저는 RaceDetailView를 직접 선언합니다. AppComponent는 목록 Component를, 목록 Component는 상세 Component를 보관하며 각 기능의 UseCase는 Component 생성 시 조립합니다. ViewModel과 화면 상태는 각 View가 소유합니다. 상세의 임시 라디오 목적지 연결은 현재 상세 View에 유지하며, 실제 라디오 진입 연결은 해당 기능의 입력을 합의한 뒤 다룹니다. 이 조립 구조와 실제 동작의 검증 결과는 구분합니다.
 
 Repository 테스트는 자료의 요청·해석·후보 변환을 확인합니다. UseCase 테스트는 Repository 테스트 대역을 통해 선별·정제·정렬 규칙을 확인하고, ViewModel 테스트는 UseCase 테스트 대역으로 화면 상태와 요청 유효성을 확인합니다.
 

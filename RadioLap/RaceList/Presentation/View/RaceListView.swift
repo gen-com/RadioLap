@@ -22,9 +22,11 @@ struct RaceListView<Model: RaceListPresentation, Detail: View>: View {
         self.detail = detail
     }
 
-    init(dependency: any RaceListDependency, @ViewBuilder detail: @escaping (Race) -> Detail)
-    where Model == RaceListViewModel {
-        self.init(viewModel: RaceListViewModel(useCase: dependency.raceListUseCase), detail: detail)
+    init(component: RaceListComponent)
+    where Model == RaceListViewModel, Detail == RaceDetailView<RaceDetailViewModel> {
+        self.init(viewModel: RaceListViewModel(useCase: component.raceListUseCase)) { race in
+            RaceDetailView(race: race, component: component.raceDetailComponent)
+        }
     }
 
     var body: some View {

@@ -10,9 +10,7 @@ struct RadioLapApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RaceListView(dependency: component) { race in
-                RaceDetailView(race: race, dependency: component)
-            }
+            RaceListView(component: component.raceListComponent)
         }
     }
 }

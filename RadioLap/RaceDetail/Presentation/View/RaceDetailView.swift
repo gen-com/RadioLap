@@ -20,8 +20,8 @@ struct RaceDetailView<Model: RaceDetailPresentation>: View {
         _viewModel = State(initialValue: viewModel)
     }
 
-    init(race: Race, dependency: any RaceDetailDependency) where Model == RaceDetailViewModel {
-        self.init(viewModel: RaceDetailViewModel(race: race, useCase: dependency.raceDetailUseCase))
+    init(race: Race, component: RaceDetailComponent) where Model == RaceDetailViewModel {
+        self.init(viewModel: RaceDetailViewModel(race: race, useCase: component.raceDetailUseCase))
     }
 
     var body: some View {
