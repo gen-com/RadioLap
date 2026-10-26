@@ -49,3 +49,4 @@
 | --- | --- |
 | [레이스 목록 작업 안내](RadioLap/RaceList/AGENTS.md) | 목록의 문맥·Repository 계약·화면 상태·완료기준 진입점입니다. |
 | [레이스 상세 작업 안내](RadioLap/RaceDetail/AGENTS.md) | 상세의 목적·Repository·UseCase·화면 계약·완료기준 진입점입니다. |
+| [드라이버 라디오 작업 안내](RadioLap/DriverRadio/AGENTS.md) | 라디오의 목적·데이터·화면·재생 계약과 남은 결정 사항·검증 경계의 진입점입니다. |

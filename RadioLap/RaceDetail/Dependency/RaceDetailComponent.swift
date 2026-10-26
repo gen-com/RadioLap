@@ -5,10 +5,11 @@
 
 import Foundation
 
-/// 상세 화면에 필요한 조회 의존성을 조립한다.
+/// 상세 조회 의존성을 조립하고 라디오 진입에 필요한 Component를 제공한다.
 @MainActor
 final class RaceDetailComponent {
     let raceDetailUseCase: any RaceDetailUseCase
+    let driverRadioComponent = DriverRadioComponent()
 
     init() {
         let repository = DemoRaceDetailProvider(

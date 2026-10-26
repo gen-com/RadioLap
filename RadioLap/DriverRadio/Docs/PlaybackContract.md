@@ -1,6 +1,6 @@
 # 드라이버 라디오 재생 계약 초안
 
-[기능 목적](../README.md)과 [화면 계약](PresentationState.md)을 바탕으로 오디오 재생의 책임과 보장 동작을 정의합니다. 실제 오디오는 AVPlayer로 연동하고 앱의 재생 정책은 RadioPlayback 구현이 담당합니다.
+[기능 목적](../README.md)과 [화면 계약](PresentationState.md)을 바탕으로 오디오 재생의 책임과 보장 동작을 정의합니다. AVPlayer 연동을 구현하고 컴파일과 이벤트 연결 코드를 확인했습니다. 실제 소리 출력은 아직 확인하지 않았으며 공개 선언은 아래 합의를 따릅니다. 실제 오디오는 AVPlayer로 연동하고 앱의 재생 정책은 RadioPlayback 구현이 담당합니다.
 
 ## 책임과 입출력
 
@@ -36,7 +36,7 @@ enum RadioPlaybackState: Equatable, Sendable {
 }
 ```
 
-위 공개 선언은 [RadioPlayback.swift](../Playback/RadioPlayback.swift)에 둡니다. 위치·전체 길이는 초 단위이며 모르면 각각 nil입니다.
+위 공개 선언은 [RadioPlayback.swift](../Playback/RadioPlayback.swift)에 작성했습니다. RadioPlayer의 정책 구현을 컴파일하고 연동 대역 테스트를 통과했습니다. AVPlayer 연동과 화면 연결을 구현했습니다. 위치·전체 길이는 초 단위이며 모르면 각각 nil입니다.
 
 - play(url:)은 기존 재생을 교체하고 처음부터 시작합니다.
 - resume()은 일시정지 위치에서 이어 듣습니다.
@@ -77,7 +77,7 @@ ViewModel에는 이 계약만 주입하고 구체 오디오 구현은 Component�
 
 ### 최소 명령·이벤트 선언
 
-연동 경계는 RadioAudioTransport로 이름 짓고 기능의 Playback 영역에 둡니다. 선언은 [RadioAudioTransport.swift](../Playback/RadioAudioTransport.swift)를 따릅니다. 프로토콜과 이벤트는 하나의 파일에 함께 두고 별도 이벤트 관리자나 작업 식별자 타입은 추가하지 않습니다.
+연동 경계는 RadioAudioTransport로 이름 짓고 기능의 Playback 영역에 둡니다. 다음 선언은 [RadioAudioTransport.swift](../Playback/RadioAudioTransport.swift)에 작성했습니다. 컴파일과 연동 대역 테스트를 확인했으며 실제 연동 구현은 [AVPlayerRadioAudioTransport.swift](../Playback/AVPlayerRadioAudioTransport.swift)에 있습니다. 프로토콜과 이벤트는 하나의 파일에 함께 두고 별도 이벤트 관리자나 작업 식별자 타입은 추가하지 않습니다.
 
 ```swift
 @MainActor
@@ -121,7 +121,7 @@ progress의 두 값은 해당 이벤트 시점에 확인된 초 단위 위치·�
 - 명령과 콜백은 MainActor에서 처리합니다. 명령의 실패는 failed 이벤트로 전달하며 이벤트가 반드시 다음 비동기 작업에서 도착한다고 가정하지 않습니다. 준비 작업은 prepare 호출 전에 구분할 수 있어야 합니다.
 - 실제 연동은 교체·중지 시 기존 오디오와 관찰을 정리합니다. 정책 객체는 이미 전달 중인 이벤트가 늦게 도착할 수 있음을 전제로 처리합니다. 테스트 대역도 이전 콜백을 보관해 이러한 이벤트를 전달할 수 있게 하며 최신 작업 판정을 대신하지 않습니다.
 
-테스트는 준비 요청별 URL·콜백과 play·pause·stop 명령을 기록하는 대역을 사용합니다. 동일 URL 재시작, 준비·대기 중 중단, 교체·중지 후 이전 콜백의 이벤트를 실제 RadioPlayback 구현에 전달해 공개 상태와 후속 명령을 확인합니다. 실제 소리의 중지는 직접 재생 확인 대상으로 남깁니다.
+테스트는 준비 요청별 URL·콜백과 play·pause·stop 명령을 기록하는 대역을 사용합니다. 동일 URL 재시작, 준비·대기 중 중단, 교체·중지 후 이전 콜백의 이벤트를 실제 RadioPlayback 구현에 전달해 공개 상태와 후속 명령을 확인합니다. AVPlayer·AVAudioSession의 구체 알림을 위 이벤트로 변환하는 코드는 검토했습니다. 실제 소리의 중지는 직접 재생 확인 대상으로 남깁니다.
 
 ## 재생과 위치
 
@@ -162,10 +162,10 @@ progress의 두 값은 해당 이벤트 시점에 확인된 초 단위 위치·�
 
 ## 검증 경계와 후속 작업
 
-재생 대역은 명령만 기록하고 테스트에서 상태를 공급하며 재생 정책을 대신 수행하지 않습니다.
+ViewModel의 재생 제어를 확인할 RadioPlayback 대역과 테스트를 작성했습니다. 대역은 명령만 기록하고 테스트에서 상태를 공급하며 재생 정책을 대신 수행하지 않습니다. ViewModel 테스트가 통과했습니다.
 
 ViewModel의 재생 제어는 RadioPlayback 대역으로 검증하고, 실제 RadioPlayback 구현의 상태 전환·교신 교체·늦은 이벤트 차단은 하위 오디오 연동 대역으로 검증합니다. 준비·재생, 일시정지·재개, 종료·다시 듣기, 실패·재시도, 교체·중지, 진행 정보 부재와 데이터 대기 해소를 확인합니다. 특히 준비·대기 중 중단 뒤 늦은 이벤트를 전달하여 자동 재개하지 않는지 확인합니다. 앱 비활성화·오디오 중단·이어폰 연결 해제 이벤트를 전달했을 때의 중단·위치 보존·자동 재개 차단은 자동 테스트 대상으로 삼고, 실제 시스템 이벤트와의 연결은 코드 검토로 확인합니다.
 
 전화·이어폰 해제 등을 실제 기기에서 재현하는 검증은 필수 범위에서 제외합니다. 외부 개입 시 중단해야 한다는 동작 요구는 유지하며, 코드 검토나 대역 테스트를 실제 시스템 이벤트 재현 완료로 표시하지 않습니다. 원격 오디오의 실제 소리 출력·기본 재생 동작 확인과 이벤트 대역 검증도 구분해 기록합니다.
 
-공개 상태·동작의 의미, 객체 수명과 정보 부재 시 표시는 위 합의를 따릅니다. 실제 시스템 이벤트 변환은 코드 검토로, 기본 오디오 재생은 직접 확인합니다.
+공개 상태·동작의 의미, 객체 수명과 정보 부재 시 표시는 합의했습니다. RadioPlayback 공개 선언은 Swift 파일에, RadioAudioTransport 선언도 Swift 파일에 옮겼으며 작업 구분은 이 문서를 따릅니다. 연동 경계의 Swift 선언과 [명령·이벤트 대역](../../../RadioLapTests/DriverRadio/TestDoubles/RadioAudioTransportSpy.swift), [재생 정책 테스트](../../../RadioLapTests/DriverRadio/Playback/RadioPlaybackTests.swift)을 작성했습니다. RadioPlayer(transport:)를 구현하고 RadioPlayback 계약으로 테스트해 통과했습니다. 재생 상태 관찰 전달도 ViewModel 테스트에서 확인했습니다. AVPlayerRadioAudioTransport의 상태·진행·종료·실패 이벤트 변환과 준비 교체·중지 시 관찰 및 오디오 정리를 구현했습니다. 최소 지원 버전인 iOS 27의 AVAudioSession.didBecomeInactiveNotification과 출력 경로 변경의 oldDeviceUnavailable을 interrupted로 전달하며 재개 권고로 재생하지 않습니다. 이 연결은 SDK 선언과 코드로 검토했고, 시뮬레이터 화면에서 원격 오디오의 재생·진행·일시정지·이어 듣기·종료와 앱 전환 후 자동 재개 방지를 확인했습니다. 실제 소리의 청취·중지와 전화·이어폰 해제 재현은 확인하지 않았습니다.

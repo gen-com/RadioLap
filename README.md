@@ -23,6 +23,6 @@ AI와의 협업은 단순히 코드를 빠르게 만드는 것을 넘어, 대안
 | [팀 라디오와 당시 레이스 상황을 함께 살펴보기](docs/WIREFRAMES.md) | [책임과 의존 방향 설계하기](docs/ARCHITECTURE.md) | [계약에서 테스트 도출하기](docs/TESTING.md) | [AI와 구현을 진행하는 작업 지침](AGENTS.md) | — |
 | [최근 열린 레이스부터 살펴보고 선택하기](RadioLap/RaceList/README.md) | [Repository 계약](RadioLap/RaceList/Docs/RepositoryContract.md) · [UseCase 계약](RadioLap/RaceList/Docs/UseCaseContract.md) · [화면 상태와 동작](RadioLap/RaceList/Docs/PresentationState.md) | [레이스 목록 완료기준](RadioLap/RaceList/Docs/CompletionCriteria.md) | [레이스 목록 코드](RadioLap/RaceList/) | [레이스 목록 테스트 코드](RadioLapTests/RaceList/) |
 | [선택한 레이스의 결과를 살펴보고 드라이버 고르기](RadioLap/RaceDetail/README.md) | [Repository 계약](RadioLap/RaceDetail/Docs/RepositoryContract.md) · [UseCase 계약](RadioLap/RaceDetail/Docs/UseCaseContract.md) · [화면 상태와 동작](RadioLap/RaceDetail/Docs/PresentationState.md) | [레이스 상세 완료기준](RadioLap/RaceDetail/Docs/CompletionCriteria.md) | [레이스 상세 코드](RadioLap/RaceDetail/) | [레이스 상세 테스트 코드](RadioLapTests/RaceDetail/) |
-교신이 나온 상황 되짚기 | 라디오와 레이스 시점 연결하기 | 확인 가능한 정보의 경계 정하기 | 재생과 상황 정보 연결하기 | 테스트 결과와 실제 라디오 화면 |
+| [선택한 드라이버의 라디오를 듣고 당시 레이스 상황 되짚기](RadioLap/DriverRadio/README.md) | [Repository 계약 초안](RadioLap/DriverRadio/Docs/RepositoryContract.md) · [UseCase 계약 초안](RadioLap/DriverRadio/Docs/UseCaseContract.md) · [화면 계약 초안](RadioLap/DriverRadio/Docs/PresentationState.md) · [재생 계약 초안](RadioLap/DriverRadio/Docs/PlaybackContract.md) | [드라이버 라디오 완료기준](RadioLap/DriverRadio/Docs/CompletionCriteria.md) | [드라이버 라디오 코드](RadioLap/DriverRadio/) | [드라이버 라디오 테스트 코드](RadioLapTests/DriverRadio/) |
 
-레이스 목록과 상세의 구현·검증 링크는 코드 위치를 안내합니다. 코드의 존재나 링크 연결은 완료기준 충족 또는 테스트 통과를 의미하지 않습니다.
+각 기능의 구현·검증 링크는 코드 위치를 안내합니다. 코드의 존재나 링크 연결은 완료기준 충족 또는 테스트 통과를 의미하지 않습니다.

@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// 화면의 수명 동안 ViewModel을 소유하며, 조회 상태를 표시하고 화면 이동을 관리한다.
-struct RaceListView<Model: RaceListPresentation, Detail: View>: View {
+struct RaceListView<Model: RaceListPresentation>: View {
     @Environment(\.scenePhase) private var scenePhase
     
     @State private var viewModel: Model
@@ -15,18 +15,17 @@ struct RaceListView<Model: RaceListPresentation, Detail: View>: View {
     @State private var hasRequestedInitialLoad = false
     @State private var scrollPosition = ScrollPosition(edge: .top)
 
-    private let detail: (Race) -> Detail
+    private let raceDetailComponent: RaceDetailComponent
 
-    init(viewModel: Model, @ViewBuilder detail: @escaping (Race) -> Detail) {
+    init(viewModel: Model, raceDetailComponent: RaceDetailComponent) {
         _viewModel = State(initialValue: viewModel)
-        self.detail = detail
+        self.raceDetailComponent = raceDetailComponent
     }
 
     init(component: RaceListComponent)
-    where Model == RaceListViewModel, Detail == RaceDetailView<RaceDetailViewModel> {
-        self.init(viewModel: RaceListViewModel(useCase: component.raceListUseCase)) { race in
-            RaceDetailView(race: race, component: component.raceDetailComponent)
-        }
+    where Model == RaceListViewModel {
+        self.init(viewModel: RaceListViewModel(useCase: component.raceListUseCase),
+                  raceDetailComponent: component.raceDetailComponent)
     }
 
     var body: some View {
@@ -62,7 +61,7 @@ struct RaceListView<Model: RaceListPresentation, Detail: View>: View {
             }
             .onDisappear { viewModel.cancel() }
             .navigationDestination(item: $selection) { destination in
-                detail(destination.race)
+                RaceDetailView(race: destination.race, component: raceDetailComponent)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name.NSSystemTimeZoneDidChange)) { _ in

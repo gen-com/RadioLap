@@ -90,7 +90,7 @@ struct RadioContext: Equatable, Sendable {
 }
 ```
 
-항목별 결과는 다음 열거형으로 구성합니다. 공개 선언은 [RadioContext.swift](../Domain/RadioContext.swift)에 두며 범용 상태 타입이나 별도 Resolver를 추가하지 않습니다.
+항목별 결과는 다음 열거형으로 구성합니다. 합의한 선언은 [RadioContext.swift](../Domain/RadioContext.swift)에 작성했으며 DriverRadioInteractor와 함께 컴파일·자동 테스트로 확인했습니다. 범용 상태 타입이나 별도 Resolver를 추가하지 않습니다.
 
 ```swift
 enum LapContext: Equatable, Sendable {
@@ -189,6 +189,6 @@ ViewModel은 자료별 조회 상태, 실패한 조회만 재시도, 취소와 �
 
 ## 검증 경계와 후속 작업
 
-UseCase 검증은 Repository 대역이 제공한 Domain 자료로 중복·충돌·시간순 정렬과 조회별 실패·취소를 확인합니다. 시점 연결은 같은 입력 자료에 대한 랩·순위·타이어와 마지막 확인 정보, 연결 불가의 의미를 검증합니다. JSON 형식과 실제 오디오 재생은 이 검증의 대상이 아닙니다. [완료기준](CompletionCriteria.md)의 실제 화면·재생 연동 검증은 이 결과와 구분합니다.
+UseCase 검증은 Repository 대역이 제공한 Domain 자료로 중복·충돌·시간순 정렬과 조회별 실패·취소를 확인합니다. 시점 연결은 같은 입력 자료에 대한 랩·순위·타이어와 마지막 확인 정보, 연결 불가의 의미를 검증합니다. JSON 형식과 실제 오디오 재생은 이 검증의 대상이 아닙니다. Repository 대역으로 Domain 자료를 공급하는 조회·정리와 시점 연결 테스트가 통과했습니다. [완료기준](CompletionCriteria.md)의 실제 화면·재생 연동 검증은 이 결과와 구분합니다.
 
 메서드와 결과의 의미는 위 합의를 따릅니다. 결과 열거형과 교신 식별자의 선언은 위에 반영했습니다. 화면의 context(for:)는 현재 자료로 오류를 던지지 않는 resolveContext를 호출합니다. 조회·정리의 취소와 동기 상황 연결을 구분하며, 완료기준에서 계약 기반 테스트를 도출하고 구현으로 이어갑니다.

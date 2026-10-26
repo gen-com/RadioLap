@@ -16,12 +16,17 @@ struct RaceDetailView<Model: RaceDetailPresentation>: View {
     @State private var scrollPosition = ScrollPosition(edge: .top)
     @State private var selection: DriverDestination?
 
-    init(viewModel: Model) {
+    private let driverRadioComponent: DriverRadioComponent
+
+    init(viewModel: Model, driverRadioComponent: DriverRadioComponent) {
         _viewModel = State(initialValue: viewModel)
+        self.driverRadioComponent = driverRadioComponent
     }
 
-    init(race: Race, component: RaceDetailComponent) where Model == RaceDetailViewModel {
-        self.init(viewModel: RaceDetailViewModel(race: race, useCase: component.raceDetailUseCase))
+    init(race: Race, component: RaceDetailComponent)
+    where Model == RaceDetailViewModel {
+        self.init(viewModel: RaceDetailViewModel(race: race, useCase: component.raceDetailUseCase),
+                  driverRadioComponent: component.driverRadioComponent)
     }
 
     var body: some View {
@@ -41,8 +46,7 @@ struct RaceDetailView<Model: RaceDetailPresentation>: View {
                     state: viewModel.state,
                     onReload: { viewModel.load() },
                     onSelect: { driver in
-                        selection = DriverDestination(sessionID: viewModel.race.sessionID,
-                                                      driverNumber: driver.driverNumber, name: driver.name)
+                        selection = DriverDestination(sessionID: viewModel.race.sessionID, driver: driver)
                     }
                 )
             }
@@ -64,7 +68,7 @@ struct RaceDetailView<Model: RaceDetailPresentation>: View {
         }
         .onDisappear { viewModel.cancel() }
         .navigationDestination(item: $selection) { destination in
-            DriverRadioPlaceholder(destination: destination)
+            DriverRadioView(race: viewModel.race, driver: destination.driver, component: driverRadioComponent)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name.NSSystemTimeZoneDidChange)) { _ in
             timeZone = .current
@@ -78,41 +82,14 @@ struct RaceDetailView<Model: RaceDetailPresentation>: View {
 
 private struct DriverDestination: Hashable {
     let sessionID: Int
-    let driverNumber: Int
-    let name: String
+    let driver: RaceDriver
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.sessionID == rhs.sessionID && lhs.driverNumber == rhs.driverNumber
+        lhs.sessionID == rhs.sessionID && lhs.driver.driverNumber == rhs.driver.driverNumber
     }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(sessionID)
-        hasher.combine(driverNumber)
-    }
-}
-
-/// 라디오 기능 구현 전에 드라이버 선택과 상세 복귀를 확인하는 임시 이동 화면.
-private struct DriverRadioPlaceholder: View {
-    @Environment(\.dismiss) private var dismiss
-    let destination: DriverDestination
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Button(action: { dismiss() }) {
-                Label("레이스 상세", systemImage: "chevron.left")
-                    .frame(minHeight: 44)
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("driverRadio.back")
-            ContentUnavailableView {
-                Label(destination.name, systemImage: "waveform")
-            } description: {
-                Text("라디오 화면을 준비하고 있습니다.")
-            }
-        }
-        .padding(.horizontal, 24)
-        .navigationBarBackButtonHidden()
-        .toolbar(.hidden, for: .navigationBar)
-        .accessibilityIdentifier("driverRadio.\(destination.sessionID).\(destination.driverNumber)")
+        hasher.combine(driver.driverNumber)
     }
 }

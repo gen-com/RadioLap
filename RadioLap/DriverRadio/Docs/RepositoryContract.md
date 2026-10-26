@@ -4,7 +4,7 @@
 
 ## 책임과 입출력
 
-하나의 Repository에 네 개의 독립적인 조회를 둡니다.
+하나의 Repository에 네 개의 독립적인 조회를 둡니다. 자료 모델·DriverRadioRepository와 DemoDriverRadioProvider를 작성했으며 JSON 입력 기반 Repository 테스트가 통과했습니다. 실제 화면 연결과 API 연동 완료를 뜻하지 않습니다.
 
 ```swift
 protocol DriverRadioRepository: Sendable {
@@ -115,4 +115,4 @@ Repository 검증은 요청 입력, 외부 응답 해석·변환, 부재와 중�
 
 데모의 정상·빈 결과는 저장한 원본 자료로 확인하고, 오류·충돌·취소는 별도 테스트 자료와 대역으로 검증합니다. 입력 해석·데모 공급 기준의 합의와 완료기준·테스트·구현 완료를 구분합니다.
 
-테스트는 Repository 메서드의 반환 모델·오류를 검증하며 JSON은 번들 입력 자료로만 사용합니다. 자료별 공급 함수는 테스트 준비 단계에서 주입합니다.
+Repository 테스트와 자료는 [테스트 디렉토리](../../../RadioLapTests/DriverRadio/)에 작성했습니다. 테스트는 Repository 메서드의 반환 모델·오류를 검증하며 JSON은 번들 입력 자료로만 사용합니다. 자료별 공급 함수는 테스트 준비 단계에서 주입합니다. Provider와 앱 선언을 테스트 타깃에 연결해 컴파일·테스트를 통과했습니다. 기본 번들 생성 경로의 원본 데모 자료를 실제 화면에서 조회하는 연결 검증은 남아 있습니다.

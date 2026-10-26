@@ -81,7 +81,7 @@ flowchart LR
 - 부모에게서 받을 외부 의존성이 없다면 Dependency를 두지 않습니다. Component의 계층을 맞추기 위한 빈 프로토콜은 만들지 않습니다.
 - 선택한 Race처럼 탐색마다 달라지는 값은 화면 진입 입력으로 전달합니다. 부모가 제공하는 공통 의존성과 구분하며 Dependency에 넣지 않습니다.
 - 목록 ViewModel은 UseCase 계약을 주입받으며 Repository를 직접 호출하거나 Interactor·Provider를 생성하지 않습니다. 다른 기능의 소비자 의존성은 해당 기능 계약을 따릅니다.
-- 기능 진입 View는 조립된 UseCase 등 필요한 의존성으로 ViewModel을 생성하거나 준비된 ViewModel을 전달받아 SwiftUI 상태로 소유합니다. 화면의 선택·이동 상태는 View가 소유하고, 사용자 이벤트는 해당 동작을 담당하는 객체에 전달합니다. Component는 목적지에 필요한 Component를 제공합니다. 기능 진입 View는 주입받은 자기 Component에서 필요한 의존성을 꺼내며, ViewModel에는 Component 전체가 아닌 필요한 계약만 전달합니다.
+- 기능 진입 View는 조립된 UseCase 등 필요한 의존성으로 ViewModel을 생성하거나 준비된 ViewModel을 전달받아 SwiftUI 상태로 소유합니다. 화면 이동용 선택과 이동 상태는 View가 소유합니다. 재생 제어처럼 기능 동작과 함께 바뀌는 선택은 해당 상태를 담당하는 객체가 관리하며, 구체적인 책임은 기능별 계약에서 정합니다. 사용자 이벤트는 해당 동작을 담당하는 객체에 전달합니다. Component는 목적지에 필요한 Component를 제공합니다. 기능 진입 View는 주입받은 자기 Component에서 필요한 의존성을 꺼내며, ViewModel에는 Component 전체가 아닌 필요한 계약만 전달합니다.
 - 보조 View에 전달할 데이터와 이벤트의 범위는 [코드 작성 규칙의 SwiftUI 화면 구성 기준](CODING_CONVENTIONS.md#swiftui-화면-구성)을 따릅니다.
 - Component는 화면 상태를 소유하지 않습니다. Component와 내부 객체의 생성 시점·공유 범위·수명은 기능 요구에 따라 별도로 정하며, 조립 계층만으로 결정하지 않습니다.
 
@@ -93,6 +93,8 @@ flowchart TD
     List -->|상세 Component 제공| Detail["RaceDetailComponent"]
     List -->|목록 내부 조립| ListDependencies["목록 Provider · Interactor"]
     Detail -->|상세 내부 조립| DetailDependencies["상세 Provider · Interactor"]
+    Detail -->|라디오 Component 제공| Radio["DriverRadioComponent"]
+    Radio -->|라디오 내부 조립| RadioDependencies["조회 의존성 · 화면별 재생 객체 생성"]
 ```
 
 자식 기능이 외부 의존성을 요구할 때의 계약 관계는 다음과 같습니다. Dependency는 자식 기능이 정의하며, 부모가 제공할 수 있는 모든 객체가 아니라 자식에게 필요한 것만 선언합니다.
@@ -104,7 +106,7 @@ flowchart LR
     Child -->|자기 기능의 내부 의존성 조립| Internal["Provider · UseCase 등"]
 ```
 
-목록과 상세는 각 Component에서 데모 Provider·Interactor를 조립합니다. 현재 부모에게서 받을 공통 의존성은 없어 별도 Dependency를 두지 않고, 기능 진입 View에 해당 Component를 주입합니다. 앱은 RaceListView를 직접 선언하고, 목록 View의 목적지 클로저는 RaceDetailView를 직접 선언합니다. AppComponent는 목록 Component를, 목록 Component는 상세 Component를 보관하며 각 기능의 UseCase는 Component 생성 시 조립합니다. ViewModel과 화면 상태는 각 View가 소유합니다. 상세의 임시 라디오 목적지 연결은 현재 상세 View에 유지하며, 실제 라디오 진입 연결은 해당 기능의 입력을 합의한 뒤 다룹니다. 이 조립 구조와 실제 동작의 검증 결과는 구분합니다.
+목록과 상세는 각 Component에서 데모 Provider·Interactor를 조립합니다. 현재 부모에게서 받을 공통 의존성은 없어 별도 Dependency를 두지 않고, 기능 진입 View에 해당 Component를 주입합니다. 앱은 RaceListView를 직접 선언하고, 목록·상세 View는 navigationDestination 안에서 다음 화면을 직접 선언합니다. 정해진 목적지를 교체하기 위한 View 제네릭이나 생성 클로저는 두지 않으며 각 화면의 Presentation만 제네릭으로 유지합니다. 각 View는 자기 Component에서 받은 다음 기능의 Component를 보관해 목적지에 전달합니다. AppComponent는 목록 Component를, 목록 Component는 상세 Component를 보관하며 각 기능의 UseCase는 Component 생성 시 조립합니다. ViewModel과 화면 상태는 각 View가 소유합니다. 상세 Component는 라디오 Component를 제공하고 상세 View는 Race·RaceDriver와 함께 DriverRadioView에 주입합니다. 라디오 Component는 조회 의존성을 조립하고 요청마다 새 재생 객체를 제공합니다. 라디오 View는 최초 진입 작업에서 ViewModel과 전용 재생 객체를 한 번 생성해 화면 수명 동안 보존하며 View 값의 재생성으로 오디오를 다시 만들지 않습니다. 이 조립 구조와 실제 동작의 검증 결과는 구분합니다.
 
 Repository 테스트는 자료의 요청·해석·후보 변환을 확인합니다. UseCase 테스트는 Repository 테스트 대역을 통해 선별·정제·정렬 규칙을 확인하고, ViewModel 테스트는 UseCase 테스트 대역으로 화면 상태와 요청 유효성을 확인합니다.
 
