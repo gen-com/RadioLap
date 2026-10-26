@@ -1,8 +1,8 @@
 # 드라이버 라디오
 
-[<img src="../../docs/images/driver-radio-wireframe.png" alt="공개 라디오를 선택하고 재생 영역과 기록 시각 주변의 랩·순위·타이어를 함께 살펴보는 드라이버 라디오 와이어프레임" width="390">](../../docs/radio-lap.html)
+[<img src="../../docs/images/driver-radio-wireframe.png" alt="공개 라디오를 선택하고 재생 영역과 기록 시각 주변의 랩·순위·타이어를 함께 살펴보는 드라이버 라디오 와이어프레임" width="390">](https://gen-com.github.io/RadioLap/radio-lap.html)
 
-[전체 와이어프레임 HTML](../../docs/radio-lap.html) · [화면 흐름과 예시 안내](../../docs/WIREFRAMES.md)
+[와이어프레임 바로 보기](https://gen-com.github.io/RadioLap/radio-lap.html) · [화면 흐름과 예시 안내](../../docs/WIREFRAMES.md)
 
 와이어프레임은 교신을 선택하고 재생 영역과 상황 정보를 함께 살펴보는 경험을 설명합니다. 예시 데이터와 미리보기 제한, 화면에 포함된 모든 요소가 구현 범위를 뜻하지는 않습니다.
 이미지의 결승 순위는 기본 정보에 포함하지 않으며, 대사 생성은 현재 합의한 범위에 포함하지 않습니다. 라디오 개수·시각·랩·순위·타이어 값과 현지 시각 표시는 예시입니다.

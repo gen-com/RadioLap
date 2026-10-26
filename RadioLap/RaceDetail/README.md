@@ -1,8 +1,8 @@
 # 레이스 상세
 
-[<img src="../../docs/images/race-detail-wireframe.png" alt="레이스 정보와 결승 순위를 살펴보고 드라이버를 선택하는 레이스 상세 와이어프레임" width="390">](../../docs/radio-lap.html)
+[<img src="../../docs/images/race-detail-wireframe.png" alt="레이스 정보와 결승 순위를 살펴보고 드라이버를 선택하는 레이스 상세 와이어프레임" width="390">](https://gen-com.github.io/RadioLap/radio-lap.html)
 
-[전체 와이어프레임 HTML](../../docs/radio-lap.html) · [화면 흐름과 예시 안내](../../docs/WIREFRAMES.md)
+[와이어프레임 바로 보기](https://gen-com.github.io/RadioLap/radio-lap.html) · [화면 흐름과 예시 안내](../../docs/WIREFRAMES.md)
 
 이미지의 레이스·드라이버·순위·인원수는 경험을 설명하기 위한 예시입니다. 공개 라디오 개수 표시는 현재 구현 범위에서 보류되어 있습니다.
 

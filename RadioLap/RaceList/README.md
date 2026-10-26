@@ -1,8 +1,8 @@
 # 레이스 목록
 
-[<img src="../../docs/images/race-list-wireframe.png" alt="최근 열린 레이스를 최신순으로 보여주는 레이스 목록 와이어프레임" width="390">](../../docs/radio-lap.html)
+[<img src="../../docs/images/race-list-wireframe.png" alt="최근 열린 레이스를 최신순으로 보여주는 레이스 목록 와이어프레임" width="390">](https://gen-com.github.io/RadioLap/radio-lap.html)
 
-[전체 와이어프레임 HTML](../../docs/radio-lap.html) · [화면 흐름과 예시 안내](../../docs/WIREFRAMES.md)
+[와이어프레임 바로 보기](https://gen-com.github.io/RadioLap/radio-lap.html) · [화면 흐름과 예시 안내](../../docs/WIREFRAMES.md)
 
 최근 열린 레이스부터 살펴보고, 돌아보고 싶은 레이스를 선택할 수 있게 합니다.
 
