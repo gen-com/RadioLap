@@ -9,9 +9,10 @@
 - 레이스 선택 후 상세 화면으로 이동하는 연결을 다룹니다. 상세 화면 자체의 구현은 별도 기능의 범위입니다.
 
 ## 현재 연결 상태
-목록의 이동 대상은 현재 이동 확인용 임시 상세 화면입니다. 이 연결 상태를 상세 기능의 구현·검증 완료로 해석하지 않습니다.
+목록에서 선택한 Race를 레이스 상세 화면에 전달합니다. 상세에서 드라이버를 선택하면 임시 라디오 화면으로 이어집니다. 이 연결 상태를 상세 기능의 모든 완료기준 충족으로 해석하지 않습니다.
 
-Repository는 후보를 반환하고, RaceListInteractor는 선별·정제·정렬을 수행합니다. ViewModel은 UseCase를 주입받고 RaceListPresentation 계약으로 화면에 연결됩니다. 책임별 테스트는 Repository·UseCase·ViewModel 수트로 구성하며, 코드와 테스트의 존재를 검증 통과로 해석하지 않습니다.
+Repository는 후보를 반환하고, RaceListInteractor는 선별·정제·정렬을 수행합니다. ViewModel은 UseCase를 주입받고 RaceListPresentation 계약으로 화면에 연결됩니다.
+책임별 테스트는 Repository·UseCase·ViewModel 수트로 구성하며, 코드와 테스트의 존재를 검증 통과로 해석하지 않습니다.
 
 ## 작업별 제약사항
 - 공통 구조와 의존 방향은 [아키텍처](../../docs/ARCHITECTURE.md)를 따릅니다.
