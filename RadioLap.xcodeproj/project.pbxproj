@@ -15,6 +15,13 @@
 		A14D0C000000000000000001 /* Exceptions for "RadioLap" folder in "RadioLap" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				DriverRadio/AGENTS.md,
+				DriverRadio/Docs/CompletionCriteria.md,
+				DriverRadio/Docs/PlaybackContract.md,
+				DriverRadio/Docs/PresentationState.md,
+				DriverRadio/Docs/RepositoryContract.md,
+				DriverRadio/Docs/UseCaseContract.md,
+				DriverRadio/README.md,
 				RaceDetail/AGENTS.md,
 				RaceDetail/Docs/CompletionCriteria.md,
 				RaceDetail/Docs/PresentationState.md,
@@ -33,6 +40,18 @@
 		D14D0C00000000000000000C /* Exceptions for "RadioLap" folder in "RadioLapTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				DriverRadio/Domain/DriverLap.swift,
+				DriverRadio/Domain/DriverPosition.swift,
+				DriverRadio/Domain/DriverRadioRepository.swift,
+				DriverRadio/Domain/DriverRadioUseCase.swift,
+				DriverRadio/Domain/DriverStint.swift,
+				DriverRadio/Domain/RadioContext.swift,
+				DriverRadio/Domain/RadioRecord.swift,
+				DriverRadio/Domain/RadioRecordID.swift,
+				DriverRadio/Playback/RadioAudioTransport.swift,
+				DriverRadio/Playback/RadioPlayback.swift,
+				DriverRadio/Presentation/ViewModel/DriverRadioPresentation.swift,
+				DriverRadio/Presentation/ViewModel/RadioLoadState.swift,
 				RaceDetail/Data/DemoRaceDetailProvider.swift,
 				RaceDetail/Data/Fixtures/drivers.json,
 				RaceDetail/Data/Fixtures/session_result.json,
